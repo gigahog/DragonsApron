@@ -1,0 +1,3 @@
+locationID,description,drop,pickup,object1,object2,option1,option2,directions
+ID001,Welcome,yes,yes,Rusty spoon,,pickup,drop,"N,S,E,W"
+ID002,Stables,no,no,Horse,,pickup,drop,"N,S,E"
