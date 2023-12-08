@@ -1,0 +1,19 @@
+textarea { resize: none; }
+
+body {
+  background-image: url('../res/PNG/dragon-002.png');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+h2 {
+  #font-family: "Cinzel", sans-serif;
+  font-family: "Macondo", sans-serif;
+  font-size: 48px;
+  text-shadow: 6px 6px 6px #aaa;
+}
+
+canvas {
+  border: 1px solid black;
+}
