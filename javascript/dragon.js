@@ -249,6 +249,7 @@ function setup_canvas() {
     canvas.addEventListener("mousedown", function(e) 
     {
         // tell the browser we're handling this event
+
         //e.preventDefault();
         //e.stopPropagation();
 
@@ -778,6 +779,3 @@ function debug_text() {
         console.log("Location: " + loc.id + " " + loc.name + " " + loc.validdir);
     }
 }
-
-
-    
