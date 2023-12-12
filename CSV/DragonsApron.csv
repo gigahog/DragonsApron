@@ -1,3 +1,7 @@
-locationID,description,drop,pickup,object1,object2,option1,option2,directions
-ID001,Welcome,yes,yes,Rusty spoon,,pickup,drop,"N,S,E,W"
-ID002,Stables,no,no,Horse,,pickup,drop,"N,S,E"
+locationID,name,description,object1,object2,object3,option1,option2,option3,north,south,east,west
+ID001,Castle Portculis,Welcome,Rusty spoon,Club,,pickup,drop,,ID002,,ID003,ID006
+ID002,Stables,The smell of wet horses is strong here.,Horse,,,pickup,drop,,,ID001,ID004,ID005
+ID003,Mess Hall,Plates with moldy food are strewn over the floor.,Cup,Spoon,,pickup,drop,fight,ID004,,,ID001
+ID004,Courtyard,The well is in the middle of the courtyard.,Rusty sword,Helmet,,pickup,drop,,,ID003,,ID002
+ID005,Chapel,"The chapel is rudimentary, with basic wooden seats.",Bible,,,pickup,drop,fight,,ID006,ID002,
+ID006,Forest,A cold wind blows through the cops of trees. ,Stick,,,pickup,drop,,ID005,,ID001,
