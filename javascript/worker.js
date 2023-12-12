@@ -31,7 +31,7 @@ function loadxml() {
             //console.log(">>" + response + "<<");
         }
     };
-    
+
     xhttp.onreadystatechange = function () {
         if (xhttp.readyState == 1) {
             console.log('Request started.')
