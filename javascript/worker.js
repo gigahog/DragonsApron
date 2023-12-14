@@ -4,14 +4,19 @@ var response = "";
 //=====================================================================
 
 addEventListener("message", event => {
-    console.log("Starting Worker Thread...");
 
-    loadxml();
-    
-    postMessage(response);
-    
-    console.log("Closing Worker Thread...");
-    close();
+    console.log("Starting Worker Thread...");
+    console.log("Worker: Received Msg: '" + event.data + "'");
+
+    if (event.data == "message") {
+        loadxml();
+        
+        console.log("Post Response Message from WorkerThread...");
+        postMessage(response);
+        
+        console.log("Closing Worker Thread...");
+        close();
+    }
 });
 
 //=====================================================================
