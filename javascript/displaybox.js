@@ -26,12 +26,15 @@ const COLOR_RED   = "#FF0000";
 const COLOR_GREEN = "#00FF00";
 const COLOR_BLUE  = "#0000FF";
 const COLOR_MAGENTA  = "#FF00FF";
+const COLOR_ORANGE   = "#FFA500";
 const COLOR_LT_RED   = "#800000";
 const COLOR_LT_GREEN = "#008000";
 const COLOR_LT_BLUE  = "#000080";
 const COLOR_DK_RED   = "#8b0000";
 const COLOR_DK_GREEN = "#008b00";
 const COLOR_DK_BLUE  = "#00008b";
+const COLOR_DK_ORANGE= "#FFC000";
+const COLOR_DK_BROWN = "#5C4033";
 
 const COLOR_SCROLLBAR_GREY = "rgb(241, 241, 241)";
 const COLOR_DRAGBAR_GREY   = "rgb(193, 193, 193)";
@@ -134,7 +137,7 @@ setup_canvas() {
         //e.stopPropagation();
 
         mousepos = this.get_mouse_pos(canvas, e);
-        console.log("canvas.mousedown (" + mousepos.x + "," + mousepos.y + ")");
+        //console.log("canvas.mousedown (" + mousepos.x + "," + mousepos.y + ")");
         
         // IF click on Drag area, then Calculate the grabdelta.
         if (this.is_point_in_rect(mousepos.x, mousepos.y, this.drag)) {
@@ -165,14 +168,14 @@ setup_canvas() {
         if(e.button == 0) {
             // left click
             this.ismousedown = false;
-            console.log("canvas.mouseup event.");
+            //console.log("canvas.mouseup event.");
         }
     });
     
     canvas.addEventListener("mouseout", (e) =>
     {
         this.ismousedown = false;
-        console.log("canvas.mouseout event.");
+        //console.log("canvas.mouseout event.");
     });
     
     canvas.addEventListener("mousemove", (e) =>
@@ -191,7 +194,7 @@ setup_canvas() {
     
         this.drag.y = mousepos.y - this.grabdelta.y;
 
-        console.log("canvas.mousemove (" + mousepos.x + "," + mousepos.y + ")");
+        //console.log("canvas.mousemove (" + mousepos.x + "," + mousepos.y + ")");
         
         // Re-Paint Canvas.
         this.paint(canvas);
@@ -201,7 +204,7 @@ setup_canvas() {
     {
         // Store target of where the mouse was last clicked.
         this.last_mouse_down_tgt = e.target;
-        console.log("document.mousedown");
+        //console.log("document.mousedown");
     });
     
     
@@ -210,7 +213,7 @@ setup_canvas() {
         const canvas = document.getElementById("gamechat");
                 
         if (this.last_mouse_down_tgt == canvas) {
-            console.log("document.keydown");
+            //console.log("document.keydown");
             this.on_key_press(canvas, e.key, e.keyCode);
 
             e.preventDefault();
@@ -243,6 +246,37 @@ is_point_in_rect(x, y, rect) {
 }
 
 //=====================================================================
+// Paint function (public member function).
+
+repaint() {
+    const canvas = document.getElementById("gamechat");
+    this.paint(canvas);
+}
+
+//=====================================================================
+// Main Paint function (private member function).
+
+paint(canvas) {
+    this.paint_scrollbar(canvas);
+
+    // Find total length in pixels.
+    var len = this.get_total_length();
+
+    // Create percentage value between 0 and 1.0.
+    var percent = this.drag.y / (this.scroll.h - this.drag.h);
+
+    // Calculate the pixel to start rendering at.
+    var pxl_start = (len * percent) - this.drag.h;
+    // Make sure pxl_start is not (-ve).
+    if (pxl_start < 0) pxl_start = 0;
+
+    //console.log("pxl_start=" + pxl_start.toFixed(3) + " percent=" + percent.toFixed(3));
+
+    // Render text.
+    this.render_history(canvas, pxl_start);
+}
+
+//=====================================================================
 // Draw the scroll bar.
 
 paint_scrollbar(canvas) {
@@ -272,43 +306,12 @@ paint_scrollbar(canvas) {
 }
 
 //=====================================================================
-// Paint function (public member function).
-
-repaint() {
-    const canvas = document.getElementById("gamechat");
-    this.paint(canvas);
-}
-
-//=====================================================================
-// Main Paint function (private member function).
-
-paint(canvas) {
-    this.paint_scrollbar(canvas);
-
-    // Find total length in pixels.
-    var len = this.get_total_length();
-
-    // Create percentage value between 0 and 1.0.
-    var percent = this.drag.y / (this.scroll.h - this.drag.h);
-
-    // Calculate the pixel to start rendering at.
-    var pxl_start = (len * percent) - this.drag.h;
-    // Make sure pxl_start is not (-ve).
-    if (pxl_start < 0) pxl_start = 0;
-
-    console.log("pxl_start=" + pxl_start.toFixed(3) + " percent=" + percent.toFixed(3));
-
-    // Render text.
-    this.render_history(canvas, pxl_start);
-}
-
-//=====================================================================
 // Walk through text until we hit pxl_start then render (for scroll.h pixels).
 
 render_history(canvas, pxl_start) {
     const ctx = canvas.getContext("2d");
 
-    console.log("render_history()");
+    //console.log("render_history()");
     
     for (const obj of this.objArr) {
 
@@ -345,7 +348,7 @@ set_dragbar(percent) {
     // Set the new position of the drag bar.
     this.drag.y = (this.scroll.h - this.drag.h) * percent;
     
-    console.log("percent=" + percent + " drag.y=" + this.drag.y);
+    //console.log("percent=" + percent + " drag.y=" + this.drag.y);
 }
 
 //=====================================================================
@@ -445,7 +448,7 @@ on_key_press(canvas, key, code) {
         case KEY_CODE.BACKSPACE:
             // Make sure we don't delete the PROMPT text.
             if (this.playertxt.length > 4) {
-                this.playertxt = playertxt.slice(0, -1);
+                this.playertxt = this.playertxt.slice(0, -1);
                 this.edit_player_string(this.playertxt);
             }
             break;
@@ -498,6 +501,7 @@ edit_player_string(txt) {
 
 //=====================================================================
 // Set players input prompt.
+// NOTE: Should only be used once at beginning of game.
 
 setup_input_prompt() {
     this.playertxt = PROMPT;

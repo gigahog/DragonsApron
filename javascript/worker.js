@@ -8,7 +8,7 @@ addEventListener("message", event => {
     console.log("Starting Worker Thread...");
     console.log("Worker: Received Msg: '" + event.data + "'");
 
-    if (event.data == "message") {
+    if (event.data == "startworker") {
         loadxml();
         
         console.log("Post Response Message from WorkerThread...");

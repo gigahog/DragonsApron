@@ -9,9 +9,10 @@ let inventoryArr = [];                  // Inventory Array.
 let locationArr = [];                   // Location Array.
 let locationID = "";                    // e.g. "ID001".
 let location_idx = -1;                  // Index into locationArr. 
+let holding = "";
 
 const GAME_VERSION_MAJOR = "02";
-const GAME_VERSION_MINOR = "05";
+const GAME_VERSION_MINOR = "09";
 
 const FONT_TITLE = "bold 18px Helvetica, Arial, sans-serif";
 const FONT_NORMAL = "normal 11px Helvetica, Arial, sans-serif";
@@ -30,12 +31,8 @@ function Location() {
     this.id = "IDXXX";
     this.name = "";
     this.description = "";
-    this.object1 = "";
-    this.object2 = "";
-    this.object3 = "";
-    this.option1 = "";
-    this.option2 = "";
-    this.option3 = "";
+    this.object = [];
+    this.option = [];
     this.north = "";
     this.south = "";
     this.east = "";
@@ -79,9 +76,9 @@ function kickoff_worker() {
         }
     });
 
-    console.log("Main thread sending message...");
     // Pass data to worker thread.
-    worker.postMessage("message");
+    console.log("Main thread sending message...");
+    worker.postMessage("startworker");
 }
 
 //=====================================================================
@@ -89,9 +86,13 @@ function kickoff_worker() {
 
 function initial_display() {
 
-    // Add Title Text.
-    dbox.add_string(GAME_TITLE, COLOR_TITLE_TXT, FONT_TITLE);
+    // Add Title Text & Version.
+    var txt = GAME_TITLE;
+    dbox.add_string(txt, COLOR_TITLE_TXT, FONT_TITLE);
 
+    txt = "Version: " + GAME_VERSION_MAJOR + "." + GAME_VERSION_MINOR;
+    dbox.add_string(txt, COLOR_DK_BROWN, FONT_NORMAL);
+    
     // Move to initial location.
     move_to_location(start_location);
 
@@ -133,22 +134,28 @@ function parse_xml_to_array(data) {
                     l.description = y.textContent;
                     break;
                 case "object1":
-                    l.object1 = y.textContent;
+                    if (y.textContent != "")
+                        l.object.push(y.textContent);
                     break;
                 case "object2":
-                    l.object2 = y.textContent;
+                    if (y.textContent != "")
+                        l.object.push(y.textContent);
                     break;
                 case "object3":
-                    l.object3 = y.textContent;
+                    if (y.textContent != "")
+                        l.object.push(y.textContent);
                     break;
                 case "option1":
-                    l.option1 = y.textContent;
+                    if (y.textContent != "")
+                        l.option.push(y.textContent);
                     break;
                 case "option2":
-                    l.option2 = y.textContent;
+                    if (y.textContent != "")
+                        l.option.push(y.textContent);
                     break;
                 case "option3":
-                    l.option3 = y.textContent;
+                    if (y.textContent != "")
+                        l.option.push(y.textContent);
                     break;
                 case "north":
                     l.north = y.textContent;
@@ -182,6 +189,7 @@ function get_game_response(player_txt) {
     var flag_examine = false;
     var flag_fight = false;
     var commands = player_txt.split(" ");
+    var object = "";
     
     for (var cmd of commands) {
         
@@ -204,33 +212,47 @@ function get_game_response(player_txt) {
                 flag_examine = true;
                 break;
             case "NORTH":
-                response_direction_cmd(cmd)
+                response_direction_cmd(cmd);
                 break;
             case "SOUTH":
-                response_direction_cmd(cmd)
+                response_direction_cmd(cmd);
                 break;
             case "EAST":
-                response_direction_cmd(cmd)
+                response_direction_cmd(cmd);
                 break;
             case "WEST":
-                response_direction_cmd(cmd)
+                response_direction_cmd(cmd);
                 break;
             case "FIGHT":
+                response_fight_cmd(commands);
                 break;
-            case "SPELL":
+            case "THROW":
+                response_throw_cmd(commands);
                 break;
             case "USING":
-                // Ignore.
+                // Ignore string.
                 break;
             case "PICKUP":
+                response_pickup_cmd(commands);
                 break;
             case "DROP":
+                response_drop_cmd(commands);
+                break;
+            case "OBJECTS":
+                response_objects_cmd(cmd);
                 break;
             case "WHEREAMI":
                 response_whereami_cmd(cmd);
                 break;
+            case "STORE":
+                response_store_cmd(commands);
+                break;
+            case "RETRIEVE":
+                response_retrieve_cmd(commands);
+                break;
             default:
-                if (is_inventory_object(cmd))
+                console.log("unknown cmd=" + cmd);
+                if (is_inventory_object(cmd) || is_holding_object(cmd) || is_room_object(cmd))
                     object = cmd;
                 else
                     response_unknown_cmd(cmd);
@@ -279,16 +301,41 @@ function response_whereami_cmd(cmd) {
 // Narrators Response: Inventory command.
 
 function response_inventory_cmd(cmd) {
-    var txt = PROMPT + "Inventory: ";
+    var txt = PROMPT + "Inventory List: ";
 
     if (inventoryArr.length > 0) {
         for (var item of inventoryArr)
-            txt += item.name + " ";
+            txt += item + ", ";
+
+        // Remove last two chars (", ").
+        txt = txt.slice(0, -2);
     } else {
-        txt += "Inventory is Empty.";
+        txt += "<empty>";
     }
 
     dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+}
+
+//=====================================================================
+// Narrators Response: Current Object List.
+
+function response_objects_cmd(cmd) {
+    var txt = PROMPT + "Current Object List:";
+    dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+    
+    // Holding.
+    var txt = PROMPT + "You are holding: ";
+    if (holding != "")
+        txt += holding;
+    else
+        txt += "<empty>";
+    dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+    
+    // Inventory list.
+    response_inventory_cmd("");
+    
+    // Location Objects list.
+    room_object_list();
 }
 
 //=====================================================================
@@ -298,7 +345,7 @@ function response_cmdlist_cmd(cmd) {
     var txt = PROMPT + "Command List: ";
 
     // Default Commands.
-    txt += "HELP, INVENTORY, COMMANDS";
+    txt += "HELP, INVENTORY, COMMANDS, OBJECTS";
     
     //TODO
     txt += ", EXAMINE <object>";
@@ -317,6 +364,7 @@ function response_cmdlist_cmd(cmd) {
 
     //TODO
     txt += ", FIGHT USING <object>";
+    txt += ", THROW <object>";
     txt += ", SPELL <object>";
     txt += ", PICKUP <object>";
     txt += ", DROP <object>";
@@ -376,6 +424,28 @@ function is_direction_valid(cmd) {
 }
 
 //=====================================================================
+// Is 'cmd' an object in current room.
+//  Returns:
+//    true  - 'object' is in room.
+//    false - 'object' is not in room.
+
+function room_object_list() {
+    var txt = PROMPT + "The objects at this location: ";
+
+    if (locationArr[location_idx].object.length > 0) {
+        for (var location_obj of locationArr[location_idx].object)
+            txt += location_obj + ", ";
+        
+        // Remove last two chars (", ").
+        txt = txt.slice(0, -2);
+    } else {
+        txt += "There are no objects here.";
+    }
+
+    dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+}
+
+//=====================================================================
 // Is 'cmd' an inventory object.
 //  Returns:
 //    true  - 'object' is in inventory.
@@ -383,8 +453,8 @@ function is_direction_valid(cmd) {
 
 function is_inventory_object(object) {
 
-    for (item of inventoryArr) {
-        if (object == item.name)
+    for (var item of inventoryArr) {
+        if (object.toUpperCase() == item.toUpperCase())
             return true;
     }
 
@@ -392,7 +462,253 @@ function is_inventory_object(object) {
 }
 
 //=====================================================================
-// Return the array index of the matching location object.
+// Is 'cmd' an object player is holding.
+//  Returns:
+//    true  - player is holding 'object'.
+//    false - player is not holding 'object'.
+
+function is_holding_object(object) {
+
+    if (object.toUpperCase() == holding.toUpperCase())
+        return true;
+
+    return false;
+}
+
+//=====================================================================
+// Is 'cmd' an object in current room.
+//  Returns:
+//    true  - 'object' is in room.
+//    false - 'object' is not in room.
+
+function is_room_object(object) {
+
+    for (var location_obj of locationArr[location_idx].object) {
+        //console.log("ROOM:>>" + location_obj.toUpperCase() + "<< >>" + object + "<<");
+        if (object.toUpperCase() == location_obj.toUpperCase())
+            return true;
+    }
+    return false;
+}
+
+//=====================================================================
+// Narrators Response: Pickup <obj> command.
+
+function response_pickup_cmd(commands) {
+    var txt = "";
+    
+    // Walk command list looking for an object.
+    for (var obj of commands) {
+        
+        var cmd_obj = obj.toUpperCase();
+        
+        for (var location_obj of locationArr[location_idx].object) {
+            if (cmd_obj == location_obj.toUpperCase()) {
+
+                // Remove the object from the location Array.
+                var idx = locationArr[location_idx].object.indexOf(location_obj);
+                locationArr[location_idx].object.splice(idx, 1);
+                
+                // If player is holding an object then drop it (add back to location Array).
+                if (holding != "") {
+                    locationArr[location_idx].object.push(holding);
+                    txt = PROMPT + "You drop the " + holding + " to the ground.";
+                    dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+                }
+                
+                // Change what object the player is holding.
+                holding = obj;
+                
+                var txt = PROMPT + "You are now holding the " + holding + ".";
+                dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+                
+                return;
+            }
+        }
+    }
+}
+
+//=====================================================================
+// Narrators Response: Drop <obj> command.
+
+function response_drop_cmd(commands) {
+    var txt = "";
+    var dropped = false;
+    
+    // If there is object then try to match it to the inventory.
+    // If no match is found then try to drop the one you are holding.
+
+    // Walk command list looking for an object.
+    for (var obj of commands) {
+
+        var cmd_obj = obj.toUpperCase();
+        
+        for (var inv_obj of inventoryArr) {
+            if (cmd_obj == inv_obj.toUpperCase()) {
+
+                // Remove the object from the inventory Array.
+                var idx = inventoryArr.indexOf(inv_obj);
+                inventoryArr.splice(idx, 1);
+                dropped = true;
+                
+                // Add object to location Array.
+                locationArr[location_idx].object.push(inv_obj);
+
+                txt = PROMPT + "You drop the " + inv_obj + " to the ground.";
+                dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+                return;
+            }
+        }
+    }
+
+    // Drop what player is holding.
+    if (dropped == false && holding != "") {
+        // Add holding object to location Array.
+        locationArr[location_idx].object.push(holding);
+
+        txt = PROMPT + "You drop the " + holding + " to the ground.";
+        dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+
+        txt = PROMPT + "You are holding nothing.";
+        dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+        holding = "";
+        dropped = true;
+    }
+    
+    // Check if no object was found to drop.
+    if (dropped == false) {
+        txt = PROMPT + "There was no object found to drop.";
+        dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+    }
+}
+
+//=====================================================================
+// Narrators Response: Throw <obj> command.
+
+function response_throw_cmd(commands) {
+    var txt;
+
+    // Throw the object player is holding.
+    if (holding != "") {
+        txt = PROMPT + "You throw the " + holding + ".";
+        dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+        
+        //TODO
+        
+        txt = PROMPT + "You are holding nothing.";
+        dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+        holding = "";
+    } else {
+        txt = PROMPT + "Can't throw because you are not holding an object.";
+        dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+    }
+}
+
+//=====================================================================
+// Narrators Response: Fight <obj> command.
+
+function response_fight_cmd(commands) {
+    var txt = PROMPT;
+
+    // Fight using the object player is holding.
+    if (holding != "") {
+        txt += "You fight using the " + holding + " you are holding.";
+        dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+        
+        //TODO
+
+    } else {
+        txt += "You can't fight because you are not holding an object.";
+        dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+    }
+}
+
+//=====================================================================
+// Narrators Response: Store to Inventory <obj> command.
+
+function response_store_cmd(commands) {
+    var txt;
+
+    if ( inventoryArr.length > 5) {
+        txt = PROMPT + "You can't store any more objects in your inventory.";
+        dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+    } else {
+        
+        // Walk command list looking for an object.
+        for (var obj of commands) {
+            console.log("obj=" + obj);
+            if (is_holding_object(obj)) {
+                // Add holding object to inventory Array.
+                inventoryArr.push(holding);
+                holding = "";
+                //console.log("inv=" + inventoryArr);
+                
+                txt = PROMPT + "Added the " + obj + " to the inventory.";
+                dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+                
+                txt = PROMPT + "You are holding nothing.";
+                dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+                return;
+            }
+            
+            if (is_room_object(obj)) {
+                console.log("room - obj=" + obj);
+
+                // Remove the object from the location Array.
+                var idx = find_index_of_object(obj);
+                var tmp = locationArr[location_idx].object[idx];
+                locationArr[location_idx].object.splice(idx, 1);
+                console.log("loc=" + locationArr[location_idx].object + " idx=" + idx);
+
+                // Add object to inventory Array.
+                inventoryArr.push(tmp);
+                console.log("inv=" + inventoryArr);
+
+                txt = PROMPT + "Added the " + tmp + " to the inventory.";
+                dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+                return;
+            }
+        }
+    }
+}
+
+//=====================================================================
+// Narrators Response: Retrieve from Inventory <obj> command.
+
+function response_retrieve_cmd(commands) {
+    var txt = "";
+
+    // Try and match the command objects to an object in the inventory.
+    // If no match is found then error.
+    // If match then remove from inventory.
+    // If holding an object then drop it.
+    // Hold the newly removed inventory object.
+
+    // Walk command list looking for an object.
+    for (var obj of commands) {
+
+        if (is_inventory_object(obj)) {
+
+            // Remove the object from the inventory Array.
+            var idx = inventoryArr.indexOf(obj);
+            inventoryArr.splice(idx, 1);
+           
+            // If holding an object then drop it.
+            if (holding != "") {
+                locationArr[location_idx].object.push(holding);
+                holding = "";
+            }
+
+            // Hold the newly removed object from the inventory.
+            holding = obj;
+
+            return;
+        }
+    }
+}
+
+//=====================================================================
+// Return the array index of the matching location ID.
 
 function find_location(id) {
     var index = -1;
@@ -407,10 +723,24 @@ function find_location(id) {
 }
 
 //=====================================================================
-// Player moves to location 'id'.
+// Return the array index of the matching location object.
+
+function find_index_of_object(obj) {
+    var index = -1;
+    
+    for (let i = 0; i < locationArr[location_idx].object.length; i++) {
+        if (obj.toUpperCase() == locationArr[location_idx].object[i].toUpperCase())
+            index = i;
+    }
+    
+    return index;
+}
+
+//=====================================================================
+// Player moves to location 'id' (e.g. "ID005").
 
 function move_to_location(id) {
-    var txt = PROMPT + "ERROR: Can't find location '" + id + "' in database.";
+    var txt;
 
     // Set the current location.
     locationID = id;
@@ -420,9 +750,26 @@ function move_to_location(id) {
     if (i != -1) {
         txt = PROMPT + locationArr[i].name + ": " + locationArr[i].description;
         location_idx = i;
+    } else {
+        txt = PROMPT + "ERROR: Can't find location '" + id + "' in database.";
     }
     
     dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+    
+    if (i != -1) {
+        if (locationArr[i].object.length > 0) {
+            txt = PROMPT + "The objects at this location: ";
+            for(const obj of locationArr[i].object)
+                txt += obj + ", ";
+            console.log(">>" + txt + "<<");
+            // Remove last two chars (", ").
+            txt = txt.slice(0, -2);
+            console.log(">>" + txt + "<<");
+        } else 
+            txt = PROMPT + "There are no object here.";
+        
+        dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+    }
 }
 
 //=====================================================================
