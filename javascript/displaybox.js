@@ -1,24 +1,6 @@
-/*
-var canvasW = 0;
-var canvasH = 0;
-var marginW = 20;
-var lineSkip = 10;
-var currenty = 20;
 
-var scroll = new Rectangle(0, 0, 12, 0);
-var drag = new Rectangle(0, 0, 10, 40);
 
-var mousepos = new Vector(0, 0);
-var grabdelta = new Vector(0, 0);
-var ismousedown = false;
-var last_mouse_down_tgt;
-
-var playertxt = "";                     // Players current input text.
-let objArr = [];                        // EditBox Array.
-*/
-
-const BOTTOM_PAD = 150;
-const BOTTOM_TEXT = 75;
+const BOTTOM_PAD = 40;
 
 const COLOR_BLACK = "#000000";
 const COLOR_WHITE = "#FFFFFF";
@@ -53,7 +35,10 @@ let KEY_CODE = {
     SHIFT: 16,
     CTRL: 17,
     ALT: 18,
+    PAGEUP: 33,
+    PAGEDOWN: 34,
     END: 35,
+    HOME: 36,
     LEFT: 37,
     UP: 38,
     RIGHT: 39,
@@ -133,9 +118,6 @@ setup_canvas() {
         const canvas = document.getElementById("gamechat");
         var mousepos;
 
-        //e.preventDefault();
-        //e.stopPropagation();
-
         mousepos = this.get_mouse_pos(canvas, e);
         //console.log("canvas.mousedown (" + mousepos.x + "," + mousepos.y + ")");
         
@@ -200,6 +182,16 @@ setup_canvas() {
         this.paint(canvas);
     });
 
+    // For IE/Chrome browsers.
+    canvas.addEventListener("mousewheel", (e) => {
+        this.on_mouse_wheel(e);
+    });
+
+    // For Firefox browsers.
+    canvas.addEventListener("DOMMouseScroll", (e) => {
+        this.on_mouse_wheel(e);
+    });
+
     document.addEventListener("mousedown", (e) =>
     {
         // Store target of where the mouse was last clicked.
@@ -220,6 +212,29 @@ setup_canvas() {
             e.stopPropagation();
         }
     });
+}
+
+//=====================================================================
+// Mouse wheel has changed.
+
+on_mouse_wheel(e) {
+    const canvas = document.getElementById("gamechat");
+    let scrollDirection;
+    let wheelData = e.wheelDelta;
+
+    // The scroll wheel direction for IE/Chrome vs. Firefox is reversed.
+    if (wheelData)
+        scrollDirection = wheelData;
+    else
+        scrollDirection = -1 * e.detail;
+
+    if (scrollDirection > 0)
+        this.drag.y -= this.drag.h;     // Scrolling up.
+    else
+        this.drag.y += this.drag.h;     // Scrolling down.
+
+    // Re-Paint Canvas.
+    this.paint(canvas);
 }
 
 //=====================================================================
@@ -341,7 +356,13 @@ render_history(canvas, pxl_start) {
 //  percent - Value between 0 and 1.0.
 
 set_dragbar(percent) {
-
+    
+    // Limit the percentage between 0.0 and 1.0.
+    if (percent > 1.0)
+        percent = 1.0;
+    if (percent < 0.0)
+        percent = 0.0;
+    
     // Find total length in pixels.
     var len = this.get_total_length();
 
@@ -447,7 +468,7 @@ on_key_press(canvas, key, code) {
     switch (code) {
         case KEY_CODE.BACKSPACE:
             // Make sure we don't delete the PROMPT text.
-            if (this.playertxt.length > 4) {
+            if (this.playertxt.length > PROMPT.length) {
                 this.playertxt = this.playertxt.slice(0, -1);
                 this.edit_player_string(this.playertxt);
             }
@@ -466,15 +487,27 @@ on_key_press(canvas, key, code) {
             break;
         case KEY_CODE.ALT:
             break;
+        case KEY_CODE.PAGEUP:
+            this.on_scroll_by_line(canvas, 10, -1);
+            break;
+        case KEY_CODE.PAGEDOWN:
+            this.on_scroll_by_line(canvas, 10, 1);
+            break;
         case KEY_CODE.END:
+            this.set_dragbar(1.0);
+            break;
+        case KEY_CODE.HOME:
+            this.set_dragbar(0.0);
             break;
         case KEY_CODE.LEFT:
             break;
-        case KEY_CODE.UP:
-            break;
         case KEY_CODE.RIGHT:
             break;
+        case KEY_CODE.UP:
+            this.on_scroll_by_line(canvas, 1, -1);
+            break;
         case KEY_CODE.DOWN:
+            this.on_scroll_by_line(canvas, 1, 1);
             break;
         case KEY_CODE.DELETE:
             break;
@@ -487,6 +520,36 @@ on_key_press(canvas, key, code) {
     }
     
     this.paint(canvas);
+}
+
+//=====================================================================
+// Scroll up/down by a line size.
+//  canvas - Canvas.
+//  count  - Number of lies to scroll by.
+//  dir    - Direction (-1 is up, +1 is down).
+
+on_scroll_by_line(canvas, count, dir) {
+    const ctx = canvas.getContext("2d");
+    var h = this.get_font_height(ctx, "A");
+    
+    h = h * count * dir;
+    
+    // Find total length in pixels.
+    var len = this.get_total_length();
+
+    // Set the new position of the drag bar.
+    var percent = this.drag.y / (this.scroll.h - this.drag.h);
+    
+    // Find the pixel position (using the dragbar position).
+    var pos = len * percent;
+    
+    // Modify the pixel position.
+    pos = pos + h;
+    
+    // Find new percentage.
+    percent = pos / len;
+    
+    this.set_dragbar(percent);
 }
 
 //=====================================================================

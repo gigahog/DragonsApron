@@ -12,7 +12,7 @@ let location_idx = -1;                  // Index into locationArr.
 let holding = "";
 
 const GAME_VERSION_MAJOR = "02";
-const GAME_VERSION_MINOR = "09";
+const GAME_VERSION_MINOR = "10";
 
 const FONT_TITLE = "bold 18px Helvetica, Arial, sans-serif";
 const FONT_NORMAL = "normal 11px Helvetica, Arial, sans-serif";
@@ -21,6 +21,7 @@ const PROMPT = ">> ";
 const SPACE = " ";
 const GAME_TITLE = "The Dragons Apron";
 const start_location = "ID001";
+const MAX_INVENTORY = 5;
 
 
 window.addEventListener("load", start_game);
@@ -37,6 +38,7 @@ function Location() {
     this.south = "";
     this.east = "";
     this.west = "";
+    this.listen = "";
 }
 
 //=====================================================================
@@ -169,6 +171,9 @@ function parse_xml_to_array(data) {
                 case "west":
                     l.west = y.textContent;
                     break;
+                case "listen":
+                    l.listen = y.textContent;
+                    break;
             }
             
             // Add location onto the location Array.
@@ -249,6 +254,9 @@ function get_game_response(player_txt) {
                 break;
             case "RETRIEVE":
                 response_retrieve_cmd(commands);
+                break;
+            case "LISTEN":
+                response_listen_cmd(cmd);
                 break;
             default:
                 console.log("unknown cmd=" + cmd);
@@ -369,6 +377,7 @@ function response_cmdlist_cmd(cmd) {
     txt += ", PICKUP <object>";
     txt += ", DROP <object>";
     txt += ", WHEREAMI";
+    txt += ", LISTEN";
     
     dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
 }
@@ -629,8 +638,11 @@ function response_fight_cmd(commands) {
 function response_store_cmd(commands) {
     var txt;
 
-    if ( inventoryArr.length > 5) {
+    if ( inventoryArr.length >= MAX_INVENTORY) {
         txt = PROMPT + "You can't store any more objects in your inventory.";
+        dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+        
+        txt = PROMPT + "The maximum number of objects you can have in the inventory is " + MAX_INVENTORY + ".";
         dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
     } else {
         
@@ -696,17 +708,39 @@ function response_retrieve_cmd(commands) {
             // If holding an object then drop it.
             if (holding != "") {
                 locationArr[location_idx].object.push(holding);
+                
+                txt = PROMPT + "You have dropped the " + holding + " to the ground.";
+                dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
                 holding = "";
             }
 
             // Hold the newly removed object from the inventory.
             holding = obj;
+            
+            txt = PROMPT + "You have retrieved the " + holding + " and are now holding it.";
+            dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
 
             return;
         }
     }
 }
 
+//=====================================================================
+// Narrators Response: Listen command.
+
+function response_listen_cmd(cmd) {
+    var txt = "";
+    
+    // Walk command list looking for an object.
+    if (locationArr[location_idx].listen != "") {
+        txt = PROMPT + locationArr[location_idx].listen;
+        dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+    } else {
+        txt = PROMPT + "There is nothing to hear other than the sound of your own breathing.";
+        dbox.add_string(txt, COLOR_NARRATOR_TXT, FONT_NORMAL);
+    }
+}
+    
 //=====================================================================
 // Return the array index of the matching location ID.
 
