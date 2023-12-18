@@ -1,0 +1,24 @@
+textarea { resize: none; }
+
+html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+}
+
+h2 {
+  font-family: "Macondo", sans-serif;
+  font-size: 48px;
+  text-shadow: 6px 6px 6px #aaa;
+}
+
+canvas {
+  border: 1px solid black;
+}
