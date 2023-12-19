@@ -27,6 +27,9 @@ const COLOR_DRAGBAR_GREY   = "rgb(193, 193, 193)";
 
 const COMPOSER_CANVAS = "composer";
 
+const GRID_THROW_X = 10;
+const GRID_THROW_Y = 10;
+
 let KEY_CODE = {
     BACKSPACE: 8,
     TAB: 9,
@@ -90,6 +93,9 @@ class display {
         this.objArr = [];                        // EditBox Array.
         
         this.toolbar = new toolbar;
+        
+        // Screen offset.
+        this.offset = new Vector(0, 0);
     }
 
 //=====================================================================
@@ -154,11 +160,12 @@ setup_canvas() {
                 break;
             case TOOLBAR_SELECT:
                 // Check if the mouse click was on location box.
-                if (on_click_location_box(mousepos.x, mousepos.y)) {
+                if (on_click_location_box(mousepos.x, mousepos.y))
                     return;
-                }
 
                 start_select_box(mousepos.x, mousepos.y);
+                break;
+            case TOOLBAR_LINK:
                 break;
             case TOOLBAR_NONE:
                 // Do nothing.
@@ -189,6 +196,8 @@ setup_canvas() {
                 case TOOLBAR_SELECT:
                     if (this.ismousedown == true)
                         finish_select_box(mousepos.x, mousepos.y);
+                    break;
+                case TOOLBAR_LINK:
                     break;
                 case TOOLBAR_NONE:
                     // Do nothing.
@@ -226,6 +235,8 @@ setup_canvas() {
             case TOOLBAR_SELECT:
                 if (this.ismousedown == true)
                     move_select_box(mousepos.x, mousepos.y);
+                break;
+            case TOOLBAR_LINK:
                 break;
             case TOOLBAR_NONE:
                 // Do nothing.
@@ -326,6 +337,10 @@ setup_toolbar() {
                          "./res/toolbar_add.png", TOOLBAR_ADD);
     this.toolbar.addtool("Select", "Select Location", on_select_location,
                          "./res/toolbar_select.png", TOOLBAR_SELECT);
+    this.toolbar.addtool("Delete", "Delete Selection", on_delete,
+                         "./res/toolbar_trash.png", TOOLBAR_DELETE);
+    this.toolbar.addtool("Link", "Draw link between locations", on_link,
+                         "./res/toolbar_link.png", TOOLBAR_LINK);
 }
 
 //=====================================================================
@@ -424,9 +439,12 @@ paint_scrollbar(canvas) {
 paint_grid(canvas) {
     const ctx = canvas.getContext("2d");
     ctx.strokeStyle = COLOR_TB_DK_GREY;
+
+    var xrem = this.offset.x % GRID_THROW_X;
+    var yrem = this.offset.y % GRID_THROW_Y;
     
-    for (let x = 0; x <= this.canvasW; x+=10) {
-        for (let y = 0; y <= this.canvasH; y+=10) {
+    for (let x = xrem; x <= this.canvasW; x+=GRID_THROW_X) {
+        for (let y = yrem; y <= this.canvasH; y+=GRID_THROW_Y) {
             ctx.beginPath();
             ctx.moveTo(x-1, y);
             ctx.lineTo(x+1, y);
@@ -581,6 +599,34 @@ on_scroll_by_line(canvas, count, dir) {
     percent = pos / len;
     
     this.set_dragbar(percent);
+}
+
+//=====================================================================
+// Get screen offset.
+// Return Type: Vector2
+
+get_screen_offset() {
+    return this.offset;
+}
+
+//=====================================================================
+// Convert World to Screen coordinates.
+
+world2screen(wx, wy) {
+    var sc = new Vector(wx, wy);
+    sc.x -= this.offset.x;
+    sc.y -= this.offset.y;
+    return sc;
+}
+
+//=====================================================================
+// Convert Screen to World coordinates.
+
+screen2world(sx, sy) {
+    var wld = new Vector(sx, sy);
+    wld.x += this.offset.x;
+    wld.y += this.offset.y;
+    return wld;
 }
 
 //=====================================================================

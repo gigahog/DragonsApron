@@ -2,6 +2,8 @@
 const TOOLBAR_NONE = 0;
 const TOOLBAR_ADD = 1;
 const TOOLBAR_SELECT = 2;
+const TOOLBAR_DELETE = 3;
+const TOOLBAR_LINK = 4;
 
 //=====================================================================
 // Structure Definition.
@@ -13,6 +15,7 @@ function Tool() {
     this.icon = "";
     this.rect = (0, 0, 0, 0);
     this.selected = false;
+    this.select_value = TOOLBAR_NONE;
 }
 
 //=====================================================================
@@ -110,6 +113,9 @@ on_toolbar_clicked(mx, my) {
             this.unselect_all();
             tool.selected = true;
             is_clicked = true;
+            
+            // Toolbar callback function.
+            tool.callback( tool.select_value );
         }
     }
     

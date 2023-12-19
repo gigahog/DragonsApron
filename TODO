@@ -9,18 +9,27 @@ Javascript
 
 
 
-Story
---------
+The Dragons Apron Story
+------------------------
 
 
 
-Composer
----------
-- Initial code.
-
+Adventurer Composer
+--------------------
+- AC: Link between locations.
+- AC: Save XML location list
+- AC: Load XML location list
+- AC: Add horizontal dragbar.
+- AC: Snap to grid
+- AC: Connect view to dragbar location.
+- AC: Move multi locations when selected.
 
 
 
 COMPLETE
 =========
 
+- AC: Introduced World coordinates.
+- AC: BUG: Fix adding multiple locations on top of each other.
+- AC: Delete selection.
+- AC: Initial code.

@@ -25,6 +25,18 @@ function is_rect_fully_within(aa, bb) {
 }
 
 //=====================================================================
+// Collision: Check for partial collision between two rectangles.
+
+function is_AABB_collision(aa, bb) {
+    if (aa.x < bb.x + bb.w &&
+        aa.x + aa.w > bb.x &&
+        aa.y < bb.y + bb.h &&
+        aa.y + aa.h > bb.y)
+        return true;
+    return false;
+}
+
+//=====================================================================
 // Get font height in whole pixels.
 
 function get_font_height(ctx, text) {
