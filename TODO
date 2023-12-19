@@ -29,6 +29,7 @@ Adventurer Composer
 COMPLETE
 =========
 
+- AC: Select box by clicking on it.
 - AC: Introduced World coordinates.
 - AC: BUG: Fix adding multiple locations on top of each other.
 - AC: Delete selection.

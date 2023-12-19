@@ -145,7 +145,7 @@ setup_canvas() {
             return;
         }
         
-        // Check if clicked on toolbar.
+        // Check if clicked on toolbar area.
         if (this.toolbar.on_toolbar_clicked(mousepos.x, mousepos.y)) {
             //console.log("Clicked on toolbar.");
             this.paint(canvas);
@@ -161,7 +161,7 @@ setup_canvas() {
             case TOOLBAR_SELECT:
                 // Check if the mouse click was on location box.
                 if (on_click_location_box(mousepos.x, mousepos.y))
-                    return;
+                    break;
 
                 start_select_box(mousepos.x, mousepos.y);
                 break;

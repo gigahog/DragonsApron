@@ -77,7 +77,7 @@ function on_select_location(select) {
 }
 
 function on_delete(select) {
-    console.log("on_delete()");
+
     var remove_ids = [];
     var fixed = 0;
     
@@ -95,7 +95,7 @@ function on_delete(select) {
         console.log(" Fixing refs for " + id);
         fixed = remove_ref(id);
     }
-    console.log("Fixed hanging refs: " + fixed);
+    console.log("Fixed " + fixed + " hanging refs.");
 }
 
 function on_link(select) {
@@ -297,11 +297,15 @@ function on_click_location_box(mx, my) {
     // Convert mouse coords (screen) to World coord.
     var wld = dply.screen2world(mx, my);
     
+    // Unselect all locations.
+    unselect_all_locations();
+    
     // Walk the list of Locations.
     for (var loc of locationArr) {
 
         if (is_point_in_rect(wld.x, wld.y, loc.rect)) {
-            // Hit a location box.
+            // Hit a location box, select it.
+            loc.selected = true;
             console.log("Hit location=" + loc.id);
         }
 
@@ -343,7 +347,11 @@ function move_select_box(mx, my) {
 }
 
 function finish_select_box(mx, my) {
-
+    
+    // Check that the selection box is valid.
+    if (ss.w == 0 || ss.h == 0)
+        return;
+    
     // Make sure selection rectangle has (ss_x,ss_y) point at top left corner.
     if (ss.w < 0) {
         ss.x = ss.x + ss.w;
@@ -353,12 +361,6 @@ function finish_select_box(mx, my) {
         ss.y = ss.y + ss.h;
         ss.h = Math.abs(ss.h);
     }
-
-    // Create selection rectangle.
-    //var select = new Rectangle(ss_x, ss_y, ss_w, ss_h);
-
-    // Unselect all locations.
-    unselect_all_locations();
 
     // Walk the location array and check which boxes are fully encompased
     // by selection rectangle.
