@@ -96,7 +96,6 @@ paint_toolbar(canvas) {
         
         // Draw icon.
         ctx.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-        
     }
 }
 

@@ -2,6 +2,7 @@
 const COMPOSER_TITLE = "Adventurer Composer";
 
 var dply = new display();               // Display Class.
+var lnk  = new link();                  // Link Class.
 let locationArr = [];                   // Location Array.
 let location_idx = -1;                  // Index into locationArr.
 let location_next_id = 1;
@@ -44,10 +45,11 @@ function Location() {
 }
 
 function DirSquare() {
-    this.offset = new Rectangle(0, 0, 0, 0);
+    this.offset = new Rectangle(0, 0, 0, 0);    // Coordinates of square offset from Location.
     this.direction = "";            // N, S, E or W.
     this.connected_id = "";         // This ID of the location we are linked to.
     this.connected_dir = "";        // The direction of the location we are linked to.
+    this.connected = false;
 }
 
 //=====================================================================

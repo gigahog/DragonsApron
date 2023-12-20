@@ -110,6 +110,7 @@ setup_canvas() {
         return;
     }
 
+
     this.setup_toolbar();
     this.set_canvas_size();
 
@@ -166,6 +167,7 @@ setup_canvas() {
                 start_select_box(mousepos.x, mousepos.y);
                 break;
             case TOOLBAR_LINK:
+                lnk.on_add_link(mousepos.x, mousepos.y);
                 break;
             case TOOLBAR_NONE:
                 // Do nothing.
@@ -198,6 +200,7 @@ setup_canvas() {
                         finish_select_box(mousepos.x, mousepos.y);
                     break;
                 case TOOLBAR_LINK:
+                    lnk.on_finish_link(mousepos.x, mousepos.y);
                     break;
                 case TOOLBAR_NONE:
                     // Do nothing.
@@ -237,6 +240,7 @@ setup_canvas() {
                     move_select_box(mousepos.x, mousepos.y);
                 break;
             case TOOLBAR_LINK:
+                lnk.on_move_link(mousepos.x, mousepos.y);
                 break;
             case TOOLBAR_NONE:
                 // Do nothing.
@@ -376,8 +380,12 @@ paint(canvas) {
     
     this.toolbar.paint_toolbar(canvas);
     
-    // Render the Loction boxes.
+    // Render the Location boxes.
     paint_locations(canvas);
+    
+    // Render links (current Link & Baked Links)
+    lnk.paint_current_link(canvas);
+    lnk.paint_baked_links(canvas);
     
     // Render the dotted selector box.
     paint_select_box(canvas);
@@ -403,6 +411,9 @@ paint(canvas) {
 paint_background(canvas) {
     const ctx = canvas.getContext("2d");
 
+    //ctx.clearRect(0, 0, this.canvasW, this.canvasH);
+    //ctx.beginPath(); 
+    
     // Clear canvas to background color.
     ctx.fillStyle = COLOR_WHITE;
     ctx.fillRect(0, 0, this.canvasW, this.canvasH);
