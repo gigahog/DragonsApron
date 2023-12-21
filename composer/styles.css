@@ -19,6 +19,40 @@ h2 {
   text-shadow: 6px 6px 6px #aaa;
 }
 
+h4 {
+  font-family: "Macondo", sans-serif;
+  font-size: 20px;
+  text-shadow: 4px 4px 4px #aaa;
+}
+
+body {
+  font-family: "Ariel", sans-serif;
+  font-size: 12px;
+}
+
 canvas {
   border: 1px solid black;
 }
+
+.divInput {
+  border: 5px outset red;
+  background-color: lightblue;
+  text-align: left;
+  position: absolute;
+  top: 70px;
+  left: 50px;
+  width: 400px;
+  height: 400px;
+  padding: 10px;
+}
+
+.button {
+  margin-left: 5px;
+  margin-right: 5px;
+  width: 80px;
+  height: 25px;
+}
+
+
+
+                

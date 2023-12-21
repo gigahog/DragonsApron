@@ -11,12 +11,36 @@
 
 <body>
 
+<!-- Define Canvas --> 
 <canvas id="composer" width="400" height="460"></canvas>
 
+
+<!-- Define Division --> 
+<div class="divInput" id="loc_div"> <!-- hidden -->
+  <h4>Location Input</h4>
+  <p>Location ID: <label id="loc_id">ID001</label></p>
+  <label>Location Name: <input id="loc_name" type="text" placeholder="Name..." required></label><br>
+  <p>Location Description:</p>
+  <textarea id="desc" name="loc_desc" rows="4" cols="50" placeholder="Description..." required></textarea>
+  <p><label>Object1: <input id="loc_obj1" type="text" placeholder="Object 1..."></label></p>
+  <p><label>Object2: <input id="loc_obj2" type="text" placeholder="Object 2..."></label></p>
+  <p><label>Object3: <input id="loc_obj3" type="text" placeholder="Object 3..."></label></p>
+  <p>
+  <button class="button" id="btn_add" style="float: right;">OK</button>
+  <button class="button" id="btn_cancel" style="float: right;">Cancel</button>
+  </p>
+</div>
+
+
+<!-- List Script --> 
 <script type="text/javascript" src="helper.js"></script>
 <script type="text/javascript" src="link.js"></script>
 <script type="text/javascript" src="toolbar.js"></script>
 <script type="text/javascript" src="display.js"></script>
 <script type="text/javascript" src="composer.js"></script>
+
 </body>
 </html>
+
+
+
