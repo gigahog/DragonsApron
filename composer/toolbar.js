@@ -4,6 +4,7 @@ const TOOLBAR_ADD = 1;
 const TOOLBAR_SELECT = 2;
 const TOOLBAR_DELETE = 3;
 const TOOLBAR_LINK = 4;
+const TOOLBAR_EDIT = 5;
 
 //=====================================================================
 // Structure Definition.

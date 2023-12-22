@@ -19,13 +19,14 @@ Adventurer Composer
 - AC: Add horizontal dragbar.
 - AC: Connect view to dragbar location.
 - AC: Move multi locations when selected.
-- AC: Editing of location text (name, decsription, object list, option list, listen)
-
+- AC: BUG: Editing of location text always showing location ID as ID001.
+- AC: When adding location, show vert & horz rule lines.
 
 
 COMPLETE
 =========
 
+- AC: Editing of location text (name, decsription, object list, option list, listen)
 - AC: Snap to grid
 - AC: Link between locations.
 - AC: Select box by clicking on it.

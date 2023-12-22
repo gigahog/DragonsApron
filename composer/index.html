@@ -16,18 +16,25 @@
 
 
 <!-- Define Division --> 
-<div class="divInput" id="loc_div"> <!-- hidden -->
+<div class="divInput" id="loc_div" hidden>   <!-- Hidden by default. -->
   <h4>Location Input</h4>
-  <p>Location ID: <label id="loc_id">ID001</label></p>
-  <label>Location Name: <input id="loc_name" type="text" placeholder="Name..." required></label><br>
-  <p>Location Description:</p>
-  <textarea id="desc" name="loc_desc" rows="4" cols="50" placeholder="Description..." required></textarea>
+  <p>Location ID: <label id="loc_id" style="color:red">ID001</label></p>
+  <label>Location Name: <input id="loc_name" type="text" size="30" placeholder="Name..." required></label><br>
+  <p><label for="loc_desc">Location Description:</label></p>
+  <textarea id="loc_desc" rows="4" cols="50" placeholder="Description..."></textarea>
   <p><label>Object1: <input id="loc_obj1" type="text" placeholder="Object 1..."></label></p>
   <p><label>Object2: <input id="loc_obj2" type="text" placeholder="Object 2..."></label></p>
   <p><label>Object3: <input id="loc_obj3" type="text" placeholder="Object 3..."></label></p>
+  
+  <p><label>Option1: <input id="loc_opt1" type="text" placeholder="Option 1..."></label></p>
+  <p><label>Option2: <input id="loc_opt2" type="text" placeholder="Option 2..."></label></p>
+  <p><label>Option3: <input id="loc_opt3" type="text" placeholder="Option 3..."></label></p>
+
+  <p><label>Listen: <input id="loc_listen" type="text" placeholder="Listen..."></label></p>
+  
   <p>
-  <button class="button" id="btn_add" style="float: right;">OK</button>
-  <button class="button" id="btn_cancel" style="float: right;">Cancel</button>
+    <button class="button" id="btn_add" style="float: right;" onclick="on_btn_ok()">OK</button>
+    <button class="button" id="btn_cancel" style="float: right;" onclick="on_btn_cancel()">Cancel</button>
   </p>
 </div>
 

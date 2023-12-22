@@ -345,6 +345,8 @@ setup_toolbar() {
                          "./res/toolbar_trash.png", TOOLBAR_DELETE);
     this.toolbar.addtool("Link", "Draw link between locations", on_link,
                          "./res/toolbar_link.png", TOOLBAR_LINK);
+    this.toolbar.addtool("Edit", "Edit location description", on_edit_location,
+                         "./res/toolbar_edit.png", TOOLBAR_EDIT);
 }
 
 //=====================================================================
