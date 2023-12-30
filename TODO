@@ -21,11 +21,16 @@ Adventurer Composer
 - AC: Move multi locations when selected.
 - AC: BUG: Editing of location text always showing location ID as ID001.
 - AC: When adding location, show vert & horz rule lines.
-
+- AC: Intergrate Google Save file
+- AC: Intergrate Google Load file
+- AC: Intergrate Google Bard
+- AC: 5sec Backup Timer
 
 COMPLETE
 =========
 
+- AC: Intergrate Google Login
+- AC: Add Banner & menu (load/save)
 - AC: Editing of location text (name, decsription, object list, option list, listen)
 - AC: Snap to grid
 - AC: Link between locations.

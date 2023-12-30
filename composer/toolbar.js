@@ -5,6 +5,16 @@ const TOOLBAR_SELECT = 2;
 const TOOLBAR_DELETE = 3;
 const TOOLBAR_LINK = 4;
 const TOOLBAR_EDIT = 5;
+const BANNER_HOME = 6;
+const MENUBAR_LOAD = 7;
+const MENUBAR_SAVE = 8;
+
+const BANNER_HEIGHT = 48;
+const BANNER_WIDTH = 165;
+
+const TYPE_TOOLBAR = 1;
+const TYPE_MENUBAR = 2;
+const TYPE_BANNER  = 3;
 
 //=====================================================================
 // Structure Definition.
@@ -17,6 +27,7 @@ function Tool() {
     this.rect = (0, 0, 0, 0);
     this.selected = false;
     this.select_value = TOOLBAR_NONE;
+    this.type = TYPE_TOOLBAR;
 }
 
 //=====================================================================
@@ -25,15 +36,41 @@ function Tool() {
 class toolbar {
 
     constructor() {
-        this.toolCount = 0;
+        this.toolCountV = 0;
+        this.toolCountH = 0;
         this.toolW = 32;
         this.toolH = 32;
-        this.toolBaseX = 0;
-        this.toolBaseY = 0;
+        this.toolBaseX = BANNER_WIDTH;
+        this.toolBaseY = BANNER_HEIGHT;
         this.vertical = true;
 
+        this.menuW = 48;
+        this.menuH = 48;
+        
         this.tools = [];
+        
+        // Add a banner.
+        this.addbanner(COMPOSER_TITLE, "", on_banner, "./res/Title/banner04.png", BANNER_HOME);
     }
+
+//=====================================================================
+
+addbanner(name, desc, callback, icon, selectval) {
+    
+    var t = new Tool;
+
+    t.name = name;
+    t.description = desc;
+    t.callback = callback;
+    t.icon = icon;
+    t.select_value = selectval;
+    t.type = TYPE_BANNER;
+
+    // Banner goes in the top lefthand corner.
+    t.rect = new Rectangle(0, 0, BANNER_WIDTH, BANNER_HEIGHT);
+
+    this.tools.push(t);
+}
 
 //=====================================================================
 
@@ -46,24 +83,45 @@ addtool(name, desc, callback, icon, selectval) {
     t.callback = callback;
     t.icon = icon;
     t.select_value = selectval;
-    if (this.vertical)
-        t.rect = new Rectangle(this.toolBaseX,
-                               (this.toolCount*this.toolH)+this.toolBaseY,
-                               this.toolW, this.toolH);
-    else
-        t.rect = new Rectangle((this.toolCount*this.toolW)+this.toolBaseX,
-                               this.toolBaseY,
-                               this.toolW, this.toolH);
+    t.type = TYPE_TOOLBAR;
+
+    // All Tool icons are vertical.
+    t.rect = new Rectangle(0, (this.toolCountV*this.toolH)+this.toolBaseY,
+                           this.toolW, this.toolH);
 
     this.tools.push(t);
     
-    // Increment the tool, count.
-    this.toolCount++;
+    // Increment the vertical tool count.
+    this.toolCountV++;
+}
+
+//=====================================================================
+
+addmenu(name, desc, callback, icon, selectval) {
+    
+    var t = new Tool;
+
+    t.name = name;
+    t.description = desc;
+    t.callback = callback;
+    t.icon = icon;
+    t.select_value = selectval;
+    t.type = TYPE_MENUBAR;
+
+    // All Menu icons are horizontal.
+    t.rect = new Rectangle((this.toolCountH*this.menuW)+this.toolBaseX,  0,
+                           this.menuW, this.menuH);
+
+    this.tools.push(t);
+    
+    // Increment the horizontal menu count.
+    this.toolCountH++;
 }
 
 //=====================================================================
 
 paint_toolbar(canvas) {
+
     const ctx = canvas.getContext('2d');
     
     // Walk the list of Tools.
@@ -85,10 +143,11 @@ paint_toolbar(canvas) {
         var dHeight = tool.rect.h;
 
         // Fill all rectangle.
-        if (tool.selected == false)
-            ctx.fillStyle = COLOR_TB_LT_GREY;
-        else
+        if (tool.selected == true && tool.type == TYPE_TOOLBAR)
             ctx.fillStyle = COLOR_TB_DK_GREY;
+        else
+            ctx.fillStyle = COLOR_TB_LT_GREY;
+            
         ctx.fillRect(dx, dy, dWidth, dHeight);
         
         // Draw outer edge.

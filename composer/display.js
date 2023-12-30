@@ -337,6 +337,8 @@ set_canvas_size() {
 // Setup Toolbar.
 
 setup_toolbar() {
+    
+    // Toolbar.
     this.toolbar.addtool("Add", "Add Location", on_add_location,
                          "./res/toolbar_add.png", TOOLBAR_ADD);
     this.toolbar.addtool("Select", "Select Location", on_select_location,
@@ -347,6 +349,12 @@ setup_toolbar() {
                          "./res/toolbar_link.png", TOOLBAR_LINK);
     this.toolbar.addtool("Edit", "Edit location description", on_edit_location,
                          "./res/toolbar_edit.png", TOOLBAR_EDIT);
+    
+    // Menu bar.
+    this.toolbar.addmenu("Load", "Load XML Location File", on_load_xml_location,
+                         "./res/menu_load.png", MENUBAR_LOAD);
+    this.toolbar.addmenu("Save", "Save XML Location File", on_save_xml_location,
+                         "./res/menu_save.png", MENUBAR_SAVE);
 }
 
 //=====================================================================
@@ -532,7 +540,9 @@ on_key_press(canvas, key, code) {
             // Make sure we don't delete the PROMPT text.
             if (this.playertxt.length > PROMPT.length) {
                 this.playertxt = this.playertxt.slice(0, -1);
-                this.edit_player_string(this.playertxt);
+
+                // COMMENT - What is edit_player_string ?
+                //this.edit_player_string(this.playertxt);
             }
             break;
         case KEY_CODE.TAB:
@@ -577,7 +587,9 @@ on_key_press(canvas, key, code) {
             // Add all other characters to end of string.
             this.playertxt += key;
             console.log("Player Text: " + this.playertxt);
-            this.edit_player_string(this.playertxt);
+
+            // COMMENT - What is edit_player_string ?
+            //this.edit_player_string(this.playertxt);
             break;
     }
     

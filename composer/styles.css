@@ -53,6 +53,39 @@ canvas {
   height: 25px;
 }
 
+.button_google_sign {
+  border-radius: 12px;
+  color: white;
+  background-color: rgb(31, 111, 231);
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 0px 0px;
+  position: absolute;
+  top: 0px;
+  left: 350px;
+  width: 170px;
+  height: 48px;
+  padding: 0px;
+}
 
-
+/*
+.button_google_signout {
+  border-radius: 12px;
+  color: white;
+  background-color: rgb(31, 111, 231);
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 0px 0px;
+  position: absolute;
+  top: 0px;
+  left: 350px;
+  width: 160px;
+  height: 48px;
+  padding: 0px;
+}
+*/
                 

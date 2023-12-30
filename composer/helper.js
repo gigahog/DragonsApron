@@ -86,4 +86,18 @@ function crop_text_to_size(ctx, text, target_width) {
 }
 
 //=====================================================================
+// Pad a integer to a fixed length 'len' of pad characters 'pad'.
+// e.g.
+//    53, 5, '0' = "00053"
+//  1234, 8, '*' = "****1234"
 
+function padIt(nbr, len, pad) {
+	var t = nbr.toString();
+   
+    while (t.length < len) {
+        t = pad + t;
+    }
+    return t;
+}
+
+//=====================================================================

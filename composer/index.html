@@ -39,12 +39,21 @@
 </div>
 
 
-<!-- List Script --> 
+<button class="button_google_sign" id="gsiph">Sign in with Google</button>
+<button class="button_google_sign" id="gsoph">Sign out with Google</button>
+
+
+<!-- List of Scripts --> 
+<script type="text/javascript" src="google_drive.js"></script>
 <script type="text/javascript" src="helper.js"></script>
 <script type="text/javascript" src="link.js"></script>
 <script type="text/javascript" src="toolbar.js"></script>
 <script type="text/javascript" src="display.js"></script>
 <script type="text/javascript" src="composer.js"></script>
+<script type="text/javascript" src="inputform.js"></script>
+
+<script async defer src="https://apis.google.com/js/api.js" onload="gg_gapi_loaded()"></script>
+<script async defer src="https://accounts.google.com/gsi/client" onload="gg_gis_loaded()"></script>
 
 </body>
 </html>
