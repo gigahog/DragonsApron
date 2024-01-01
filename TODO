@@ -14,21 +14,23 @@ The Dragons Apron Story
 
 Adventurer Composer
 --------------------
-- AC: Save XML location list
-- AC: Load XML location list
 - AC: Add horizontal dragbar.
 - AC: Connect view to dragbar location.
 - AC: Move multi locations when selected.
 - AC: BUG: Editing of location text always showing location ID as ID001.
 - AC: When adding location, show vert & horz rule lines.
-- AC: Intergrate Google Save file
 - AC: Intergrate Google Load file
 - AC: Intergrate Google Bard
 - AC: 5sec Backup Timer
+- AC: LineUp On Grid
+- AC: Grey out Load & Save icons till Google Authenicate complete.
+- AC: Save XML of Master info (Adventure title, author, etc)
+
 
 COMPLETE
 =========
 
+- AC: Intergrate Google Save file
 - AC: Intergrate Google Login
 - AC: Add Banner & menu (load/save)
 - AC: Editing of location text (name, decsription, object list, option list, listen)
