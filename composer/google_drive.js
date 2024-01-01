@@ -12,6 +12,7 @@ var signoutButton = document.getElementById('gsoph');
 let tokenClient;
 let gapiInited = false;
 let gisInited = false;
+let signedin = false;
 
 //==============================================================================
 // Google sign initialize.
@@ -59,7 +60,17 @@ function gg_maybe_enable_buttons() {
     if (gapiInited && gisInited) {
         signinButton.style.display = 'block';
         signoutButton.style.display = 'none';
+        
+        // We are not signed in yet.
+        signedin = false;
     }
+}
+
+//==============================================================================
+// Is user signed into Google ?
+
+function gg_is_signedin() {
+    return signedin;
 }
 
 //==============================================================================
@@ -78,6 +89,7 @@ function gg_handle_authenicate() {
         // Show sign-out button.
         signinButton.style.display = 'none';
         signoutButton.style.display = 'block';
+        signedin = true;
         gg_check_folder(COMPOSER_FOLDER);
     };
 
@@ -103,6 +115,7 @@ function gg_handle_signout() {
         // Show sign-in button.
         signinButton.style.display = 'block';
         signoutButton.style.display = 'none';
+        signedin = false;
     }
 }
 
@@ -135,10 +148,10 @@ function gg_check_folder(folder) {
 // Generate filename for Composer XML file.
 
 function gg_gen_composer_fname() {
-    var dn = Date.now();
+    const dn = new Date();
     var filename = "composer_" + dn.getFullYear() + "-" +
                             padIt(dn.getUTCMonth(), 2, '0') + "-" +
-                            padIt(dn.getUTCDay(), 2, '0') + "-"
+                            padIt(dn.getUTCDay(), 2, '0') + "-" +
                             padIt(dn.getUTCHours(), 2, '0') +
                             padIt(dn.getUTCMinutes(), 2, '0') +
                             padIt(dn.getUTCSeconds(), 2, '0') + ".xml";
@@ -151,7 +164,7 @@ function gg_gen_composer_fname() {
 function gg_upload(txt) {
 
     if (txt != "") {
-        const blob = new Blob([txt.value], { type: 'plain/text' });
+        const blob = new Blob([txt], { type: 'plain/text' });
         // get parent folder id from localstorage
         const parentFolder = localStorage.getItem('parent_folder');
 
@@ -173,12 +186,17 @@ function gg_upload(txt) {
             headers: new Headers({ "Authorization": "Bearer " + gapi.auth.getToken().access_token }),
             body: formData
         }).then(function (response) {
+            //console.log("**response.id=" + response.json());
             return response.json();
         }).then(function (value) {
             console.log(value);
-
-            // Show list of current files.
-            gg_show_list();
+            
+            // Return new files info (name, id).
+            current_file_id = value.id;
+            current_file_name = value.name;
+            console.log("current_file_id: " + current_file_id);
+            
+            doing_work = false;
         });
     }
 }
@@ -259,6 +277,8 @@ function gg_read_download(xml_file, condition) {
 // Create new/update function.
 
 function gg_update_file(id, txt) {
+    console.log('Updating File:' + id);
+    
     var url = 'https://www.googleapis.com/upload/drive/v3/files/' + id + '?uploadType=media';
 
     fetch(url, {
@@ -270,7 +290,11 @@ function gg_update_file(id, txt) {
         body: txt
     }).then(value => {
         console.log('File updated successfully');
-    }).catch(err => console.error(err))
+        doing_work = false;
+    }).catch(err => {
+        console.error(err);
+        doing_work = false;
+    })
 }
 
 //==============================================================================

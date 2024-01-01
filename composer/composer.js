@@ -1,6 +1,7 @@
 
 const COMPOSER_TITLE = "Adventurer Composer";
 
+var master = new AdventureMaster();     // Adventure Master Class (title, author, etc).
 var dply = new display();               // Display Class.
 var lnk  = new link();                  // Link Class.
 let locationArr = [];                   // Location Array.
@@ -12,6 +13,13 @@ var ss = new Rectangle(-1, -1, 0, 0);
 
 // Timer object.
 var timer;
+
+// Current Google File info.
+var current_file_id = -1;
+var current_file_name = "";
+
+// Doing Work (affects cursor).
+var doing_work = false;
 
 const COMPOSER_VERSION_MAJOR = "01";
 const COMPOSER_VERSION_MINOR = "06";
@@ -31,7 +39,7 @@ window.addEventListener("load", start_composer);
 
 //=====================================================================
 
-function Adventure {
+function AdventureMaster() {
     this.title = "";
     this.author = "";
     this.url = "";
@@ -137,6 +145,21 @@ function on_load_xml_location() {
 }
                         
 function on_save_xml_location() {
+    doing_work = true;
+
+    // Generate XML string.
+    xmlstr = create_xml();
+    
+    // Save XML string to Google file.
+    if (current_file_id == -1) {
+        // Create new file.
+        var value = gg_upload(xmlstr);
+
+    } else {
+        // Save to existing file ID.
+        gg_update_file(current_file_id, xmlstr);
+    }
+        
 }
 
 //=====================================================================
@@ -144,6 +167,10 @@ function on_save_xml_location() {
 
 function on_timer() {
 
+    if (doing_work)
+        cursor_wait();
+    else
+        cursor_clear();
 }
 
 //=====================================================================
@@ -254,6 +281,7 @@ function unselect_all_locations() {
 }
 
 //=====================================================================
+// Paint the Location Boxes.
 
 function paint_locations(canvas) {
     const ctx = canvas.getContext('2d');

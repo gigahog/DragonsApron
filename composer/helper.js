@@ -101,3 +101,15 @@ function padIt(nbr, len, pad) {
 }
 
 //=====================================================================
+
+// Change cursor to hourglass.
+function cursor_wait() {
+    document.body.style.cursor = 'wait';
+}
+
+// Returns the cursor to the default pointer
+function cursor_clear() {
+    document.body.style.cursor = 'default';
+}
+
+//=====================================================================
