@@ -19,9 +19,7 @@ Adventurer Composer
 - AC: Move multi locations when selected.
 - AC: BUG: Editing of location text always showing location ID as ID001.
 - AC: When adding location, show vert & horz rule lines.
-- AC: Intergrate Google Load file
 - AC: Intergrate Google Bard
-- AC: 5sec Backup Timer
 - AC: LineUp On Grid
 - AC: Grey out Load & Save icons till Google Authenicate complete.
 - AC: Save XML of Master info (Adventure title, author, etc)
@@ -30,6 +28,9 @@ Adventurer Composer
 COMPLETE
 =========
 
+- AC: Save XML of Master info (Adventure title, author, etc)
+- AC: 5sec Backup Timer
+- AC: Intergrate Google Load file
 - AC: Intergrate Google Save file
 - AC: Intergrate Google Login
 - AC: Add Banner & menu (load/save)

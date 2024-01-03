@@ -6,6 +6,34 @@ function create_xml() {
     var doc = document.implementation.createDocument("", "", null);
     var root = doc.createElement("root");
 
+    //--------------------------------------------------------------
+    // Add Master Record.
+    var mstr = doc.createElement("master");
+
+    var title = doc.createElement("title");
+    title.innerHTML = master.title;
+    mstr.appendChild(title);
+
+    var author = doc.createElement("author");
+    author.innerHTML = master.author;
+    mstr.appendChild(author);
+
+    var url = doc.createElement("url");
+    url.innerHTML = master.url;
+    mstr.appendChild(url);
+
+    var sid = doc.createElement("start_id");
+    sid.innerHTML = master.start_id;
+    mstr.appendChild(sid);
+
+    var cright = doc.createElement("copyright");
+    cright.innerHTML = master.copyright;
+    mstr.appendChild(cright);
+    
+    root.appendChild(mstr);
+
+
+    //--------------------------------------------------------------
     // Walk the list of Locations.
     for (var loc of locationArr) {
     
@@ -24,13 +52,15 @@ function create_xml() {
         location.appendChild(desc);
 
         for (var i = 0; i < loc.object.length; i++) {
-            var obj = doc.createElement("object" + i.toString());
+            var j = i + 1;
+            var obj = doc.createElement("object" + j.toString());
             obj.innerHTML = loc.object[i];
             location.appendChild(obj);
         }
 
         for (var i = 0; i < loc.option.length; i++) {
-            var opt = doc.createElement("option" + i.toString());
+            var j = i + 1;
+            var opt = doc.createElement("option" + j.toString());
             opt.innerHTML = loc.option[i];
             location.appendChild(opt);
         }
@@ -51,6 +81,18 @@ function create_xml() {
         dir_n.innerHTML = get_id_of_direction(loc.squ, "W");
         location.appendChild(dir_n);
 
+        var listen = doc.createElement("listen");
+        listen.innerHTML = loc.listen;
+        location.appendChild(listen);
+        
+        var x = doc.createElement("coord_x");
+        x.innerHTML = loc.rect.x;
+        location.appendChild(x);
+        
+        var y = doc.createElement("coord_y");
+        y.innerHTML = loc.rect.y;
+        location.appendChild(y);
+        
         root.appendChild(location);
     }
 
@@ -81,4 +123,146 @@ function get_id_of_direction(ds_array, dirstr) {
 }
 
 //=====================================================================
+// Convert the XML into an array of locations.
 
+function parse_xml_to_location_array(txt) {
+
+    // Clear Location Array.
+    locationArr.length = 0;
+    
+    var parser = new DOMParser();
+    var xmlDoc = parser.parseFromString(txt, "text/xml");
+            
+    var x = xmlDoc.getElementsByTagName("location")[0];
+    //console.log( x );
+
+    while (x != null) {
+                
+        var y = x.childNodes[0];
+        console.log( "------" );
+
+        // New location.
+        var loc = new Location();
+        
+        while (y != null && y.nodeType == 1) {
+            console.log( y.nodeName + ": " + y.textContent );
+            
+            switch ( y.nodeName ) {
+                case "locationID":
+                    loc.id = y.textContent;
+                    break;
+                case "name":
+                    loc.name = y.textContent;
+                    break;
+                case "description":
+                    loc.description = y.textContent;
+                    break;
+                case "object1":
+                    if (y.textContent != "")
+                        loc.object.push(y.textContent);
+                    break;
+                case "object2":
+                    if (y.textContent != "")
+                        loc.object.push(y.textContent);
+                    break;
+                case "object3":
+                    if (y.textContent != "")
+                        loc.object.push(y.textContent);
+                    break;
+                case "option1":
+                    if (y.textContent != "")
+                        loc.option.push(y.textContent);
+                    break;
+                case "option2":
+                    if (y.textContent != "")
+                        loc.option.push(y.textContent);
+                    break;
+                case "option3":
+                    if (y.textContent != "")
+                        loc.option.push(y.textContent);
+                    break;
+                case "north":
+                    set_north_square(loc, y.textContent);
+                    break;
+                case "south":
+                    set_south_square(loc, y.textContent);
+                    break;
+                case "east":
+                    set_east_square(loc, y.textContent);
+                    break;
+                case "west":
+                    set_west_square(loc, y.textContent);
+                    break;
+                case "listen":
+                    if (y.textContent != "")
+                        loc.listen = y.textContent;
+                    break;
+                case "coord_x":
+                    loc.rect.x = parseInt(y.textContent);
+                    break;
+                case "coord_y":
+                    loc.rect.y = parseInt(y.textContent);
+                    break;
+            }
+
+            // Move to next sibling (location).
+            y = y.nextSibling;
+        }
+        
+        // Set defaults.
+        loc.rect.w = LOCATION_BOX_W;
+        loc.rect.h = LOCATION_BOX_H;
+            
+        // Add location onto the location Array.
+        locationArr.push(loc);
+
+        x = x.nextSibling;
+    }
+}
+
+//=====================================================================
+// Convert the XML into master record.
+
+function parse_xml_to_master_record(txt) {
+
+    var parser = new DOMParser();
+    var xmlDoc = parser.parseFromString(txt, "text/xml");
+            
+    var x = xmlDoc.getElementsByTagName("master")[0];
+    //console.log( x );
+                
+    var y = x.childNodes[0];
+        
+    while (y != null && y.nodeType == 1) {
+        console.log( y.nodeName + ": " + y.textContent );
+            
+        switch ( y.nodeName ) {
+            case "title":
+                master.title = y.textContent;
+                break;
+            case "author":
+                master.author = y.textContent;
+                break;
+            case "url":
+                master.url = y.textContent;
+                break;
+            case "start_id":
+                master.start_id = y.textContent;
+                break;
+            case "copyright":
+                master.copyright = y.textContent;
+                break;
+        }
+
+        // Move to next sibling.
+        y = y.nextSibling;
+    }
+        
+    console.log("Title: " + master.title);
+    console.log("author: " + master.author);
+    console.log("url: " + master.url);
+    console.log("start_id: " + master.start_id);
+    console.log("copyright: " + master.copyright);
+}
+
+//=====================================================================

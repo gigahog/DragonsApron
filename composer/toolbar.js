@@ -5,9 +5,10 @@ const TOOLBAR_SELECT = 2;
 const TOOLBAR_DELETE = 3;
 const TOOLBAR_LINK = 4;
 const TOOLBAR_EDIT = 5;
-const BANNER_HOME = 6;
-const MENUBAR_LOAD = 7;
-const MENUBAR_SAVE = 8;
+const TOOLBAR_MASTER = 6;
+const BANNER_HOME = 20;
+const MENUBAR_LOAD = 30;
+const MENUBAR_SAVE = 31;
 
 const BANNER_HEIGHT = 48;
 const BANNER_WIDTH = 165;

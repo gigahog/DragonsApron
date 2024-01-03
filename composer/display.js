@@ -158,6 +158,7 @@ setup_canvas() {
         switch (this.toolbar.get_selected()) {
             case TOOLBAR_ADD:
                 add_location(mousepos.x, mousepos.y);
+                set_change_flag();
                 break;
             case TOOLBAR_SELECT:
                 // Check if the mouse click was on location box.
@@ -168,6 +169,7 @@ setup_canvas() {
                 break;
             case TOOLBAR_LINK:
                 lnk.on_add_link(mousepos.x, mousepos.y);
+                set_change_flag();
                 break;
             case TOOLBAR_NONE:
                 // Do nothing.
@@ -201,6 +203,7 @@ setup_canvas() {
                     break;
                 case TOOLBAR_LINK:
                     lnk.on_finish_link(mousepos.x, mousepos.y);
+                    set_change_flag();
                     break;
                 case TOOLBAR_NONE:
                     // Do nothing.
@@ -339,6 +342,8 @@ set_canvas_size() {
 setup_toolbar() {
     
     // Toolbar.
+    this.toolbar.addtool("Master", "Edit Master Record", on_edit_master,
+                         "./res/toolbar_master.png", TOOLBAR_MASTER);
     this.toolbar.addtool("Add", "Add Location", on_add_location,
                          "./res/toolbar_add.png", TOOLBAR_ADD);
     this.toolbar.addtool("Select", "Select Location", on_select_location,

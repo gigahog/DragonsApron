@@ -14,6 +14,7 @@ let gapiInited = false;
 let gisInited = false;
 let signedin = false;
 
+
 //==============================================================================
 // Google sign initialize.
 
@@ -84,7 +85,8 @@ function gg_handle_authenicate() {
     tokenClient.callback = async (resp) => {
         if (resp.error !== undefined) {
             throw (resp);
-            console.log("HERE01");
+            console.log("ERROR: Authentication failed !");
+            return;
         }
         // Show sign-out button.
         signinButton.style.display = 'none';
@@ -134,8 +136,6 @@ function gg_check_folder(folder) {
                 var file = files[i];
                 localStorage.setItem('parent_folder', file.id);
                 console.log('Folder Available');
-                // Get file list if folder available
-                gg_show_list();
             }
         } else {
             // If folder is not available then create it.
@@ -204,7 +204,7 @@ function gg_upload(txt) {
 //==============================================================================
 
 function gg_create_folder(folder) {
-    console.log("gg_show_list()");
+    console.log("gg_create_folder()");
 
     var access_token = gapi.auth.getToken().access_token;
     var request = gapi.client.request({
@@ -231,6 +231,9 @@ function gg_create_folder(folder) {
 function gg_show_list() {
     console.log("gg_show_list()");
 
+    // Clear File list.
+    flist.length = 0;
+
     gapi.client.drive.files.list({
         // get parent folder id from localstorage
         'q': `parents in "${localStorage.getItem('parent_folder')}"`
@@ -238,9 +241,18 @@ function gg_show_list() {
         var files = response.result.files;
         if (files && files.length > 0) {
             console.log("File List:");
+            
             for (var i = 0; i < files.length; i++) {
                 console.log( files[i].id + "  " + files[i].name );
+
+                var f = new XmlFile();
+                f.fname = files[i].name;
+                f.id = files[i].id;
+
+                flist.push(f);
             }
+
+            on_select_filelist();
         } else {
             console.log("No Files");
         }
@@ -261,7 +273,24 @@ function gg_read_download(xml_file, condition) {
         
         if (condition == 'read') {
             xml_file.txt = res.body;
-            console.log('Read File:' + xml_file.fname);
+            console.log("Read File: " + xml_file.fname);
+            console.log("Loaded: " + xml_file.txt );
+            
+            // Set current file details.
+            current_file_id = xml_file.id;
+            current_file_name = xml_file.fname;
+            
+            // Parse XML to Location Array.
+            parse_xml_to_location_array(xml_file.txt);
+            
+            // Parse XML to Master Record.
+            parse_xml_to_master_record(xml_file.txt);
+            
+            // Update the variable 'location_next_id'.
+            update_location_next_id();
+            
+            // Redraw display.
+            dply.repaint();
 
         } else if (condition == 'download') {
             var blob = new Blob([res.body], { type: 'plain/text' });

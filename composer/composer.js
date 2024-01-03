@@ -7,6 +7,7 @@ var lnk  = new link();                  // Link Class.
 let locationArr = [];                   // Location Array.
 let location_idx = -1;                  // Index into locationArr.
 let location_next_id = 1;
+var flist = [];                         // List of files that gets passed around.
 
 // Selection Rectangle (World coords).
 var ss = new Rectangle(-1, -1, 0, 0);
@@ -21,10 +22,13 @@ var current_file_name = "";
 // Doing Work (affects cursor).
 var doing_work = false;
 
+// Change flag, used to save changes in timer.
+var change_flag = false;
+
 const COMPOSER_VERSION_MAJOR = "01";
 const COMPOSER_VERSION_MINOR = "06";
 
-const ADV_COMPOSER_HOME_URL = "home.html"
+const ADV_COMPOSER_HOME_URL = "home.html";
 
 const FONT_TITLE = "bold 18px Helvetica, Arial, sans-serif";
 const FONT_NORMAL = "normal 11px Helvetica, Arial, sans-serif";
@@ -67,7 +71,7 @@ function Location() {
 function DirSquare() {
     this.offset = new Rectangle(0, 0, 0, 0);    // Coordinates of square offset from Location.
     this.direction = "";            // N, S, E or W.
-    this.connected_id = "";         // This ID of the location we are linked to.
+    this.connected_id = "";         // The ID of the location we are linked to.
     this.connected_dir = "";        // The direction of the location we are linked to.
     this.connected = false;
 }
@@ -84,8 +88,6 @@ function start_composer() {
     print_version();
 
     dply.setup_canvas();
-
-    //kickoff_worker();
 
     // Initialize Google Drive Authentication.
     gg_init();
@@ -127,9 +129,10 @@ function on_delete(select) {
     // Fix any hanging references to the removed ID's.
     for (var id of remove_ids) {    
         console.log(" Fixing refs for " + id);
-        fixed = remove_ref(id);
+        fixed += remove_ref(id);
     }
     console.log("Fixed " + fixed + " hanging refs.");
+    set_change_flag();
 }
 
 function on_link(select) {
@@ -142,6 +145,8 @@ function on_banner(select) {
 }
 
 function on_load_xml_location() {
+    // Create list of google Drive files (stored in global 'flist').
+    gg_show_list();
 }
                         
 function on_save_xml_location() {
@@ -159,7 +164,6 @@ function on_save_xml_location() {
         // Save to existing file ID.
         gg_update_file(current_file_id, xmlstr);
     }
-        
 }
 
 //=====================================================================
@@ -167,10 +171,23 @@ function on_save_xml_location() {
 
 function on_timer() {
 
+    // Set cursor.
     if (doing_work)
         cursor_wait();
     else
         cursor_clear();
+    
+    //-----------------------------------------------------------------
+    // Check if any changes need to be saved (User must be authenticated).
+
+    if (get_change_flag() && gg_is_signedin()) {
+        
+        // Reset the 'change' flag.
+        reset_change_flag();
+        
+        // Save changes.
+        on_save_xml_location();
+    }
 }
 
 //=====================================================================
@@ -193,6 +210,26 @@ function remove_ref(id) {
         }
     }
     return cnt;
+}
+
+//=====================================================================
+// After a XML file has been loaded walk all IDs to update the 'location_next_id' global.
+
+function update_location_next_id() {
+    var max = 0;
+
+    // Walk the list of Locations.
+    for (var loc of locationArr) {
+        var str = loc.id.slice(2);      // Returns '001' from 'ID001' string.
+        var nbr = parseInt(str);
+        
+        if (nbr > max)
+            max = nbr;
+    }
+    
+    // Update the 'location_next_id' variable.
+    location_next_id = max + 1;
+    console.log("Update: location_next_id=" + location_next_id);
 }
 
 //=====================================================================
@@ -228,6 +265,23 @@ function add_location(mx, my) {
     loc.id = "ID" + location_next_id.toString().padStart(3, '0');
     loc.name = "default";
     
+    set_north_square(loc, "");
+    set_south_square(loc, "");
+    set_east_square(loc, "");
+    set_west_square(loc, "");
+
+    locationArr.push(loc);
+    console.log("Location " + loc.id + " added.");
+
+    // Increment for next location.
+    location_next_id++;
+}
+
+//=====================================================================
+// loc - Location Object.
+// id  - Location ID that direction Square is linked to.
+
+function set_north_square(loc, id) {
     // North Square.
     ds = new DirSquare();
     ds.direction = "N";
@@ -235,8 +289,11 @@ function add_location(mx, my) {
     ds.offset.y = -DIR_BOX_SZ;
     ds.offset.w = DIR_BOX_SZ;
     ds.offset.h = DIR_BOX_SZ;
+    ds.connected_id = id;
     loc.squ.push(ds);
+}
 
+function set_south_square(loc, id) {
     // South Square.
     ds = new DirSquare();
     ds.direction = "S";
@@ -244,8 +301,11 @@ function add_location(mx, my) {
     ds.offset.y = LOCATION_BOX_H;
     ds.offset.w = DIR_BOX_SZ;
     ds.offset.h = DIR_BOX_SZ;
+    ds.connected_id = id;
     loc.squ.push(ds);
+}
 
+function set_east_square(loc, id) {
     // East Square.
     ds = new DirSquare();
     ds.direction = "E";
@@ -253,8 +313,11 @@ function add_location(mx, my) {
     ds.offset.y = (LOCATION_BOX_H-DIR_BOX_SZ)/2;
     ds.offset.w = DIR_BOX_SZ;
     ds.offset.h = DIR_BOX_SZ;
+    ds.connected_id = id;
     loc.squ.push(ds);
+}
 
+function set_west_square(loc, id) {
     // West Square.
     ds = new DirSquare();
     ds.direction = "W";
@@ -262,13 +325,8 @@ function add_location(mx, my) {
     ds.offset.y = (LOCATION_BOX_H-DIR_BOX_SZ)/2;
     ds.offset.w = DIR_BOX_SZ;
     ds.offset.h = DIR_BOX_SZ;
+    ds.connected_id = id;
     loc.squ.push(ds);
-
-    locationArr.push(loc);
-    console.log("Location " + loc.id + " added.");
-
-    // Increment for next location.
-    location_next_id++;
 }
 
 //=====================================================================
@@ -506,6 +564,21 @@ function snap_to_grid(mx, my) {
     tmp.y -= offset.y;
     
     return tmp;
+}
+
+//=====================================================================
+// Functions to keep track of changes.
+
+function get_change_flag() {
+    return change_flag;
+}
+
+function set_change_flag() {
+    change_flag = true;
+}
+
+function reset_change_flag() {
+    change_flag = false;
 }
 
 //=====================================================================

@@ -1,10 +1,13 @@
-// File: inputform.js
+// File: inputLocation.js
 
 
 //=====================================================================
 // Start editing Location.
 
 function on_edit_location() {
+    
+    // Clear all the HTML fields.
+    clear_location_form();
     
     // Walk the list of Locations.
     for (var loc of locationArr) {
@@ -75,6 +78,9 @@ function on_btn_ok() {
     // Hide the division element.
     document.getElementById("loc_div").hidden = true;
     
+    // Flag that there has been a change.
+    set_change_flag();
+    
     dply.repaint();
 }
 
@@ -127,4 +133,23 @@ function set_location_data(loc_id, loc_name, loc_desc, loc_obj1, loc_obj2, loc_o
 }
 
 //=====================================================================
+// Clear all HTML elements in Form.
 
+function clear_location_form() {
+    
+    document.getElementById("loc_id").value = EMPTY;
+    document.getElementById("loc_name").value = EMPTY;
+    document.getElementById("loc_desc").value = EMPTY;
+            
+    document.getElementById("loc_obj1").value = EMPTY;
+    document.getElementById("loc_obj2").value = EMPTY;
+    document.getElementById("loc_obj3").value = EMPTY;
+
+    document.getElementById("loc_opt1").value = EMPTY;
+    document.getElementById("loc_opt2").value = EMPTY;
+    document.getElementById("loc_opt3").value = EMPTY;
+
+    document.getElementById("loc_listen").value = EMPTY;
+}
+
+//=====================================================================

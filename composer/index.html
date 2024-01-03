@@ -15,7 +15,8 @@
 <canvas id="composer" width="400" height="460"></canvas>
 
 
-<!-- Define Division --> 
+<!-- Location Input ======================================================== -->
+
 <div class="divInput" id="loc_div" hidden>   <!-- Hidden by default. -->
   <h4>Location Input</h4>
   <p>Location ID: <label id="loc_id" style="color:red">ID001</label></p>
@@ -39,19 +40,55 @@
 </div>
 
 
+<!-- Adventure Master Input ================================================= -->
+
+<div class="divInput" id="adv_div" hidden>   <!-- Hidden by default. -->
+  <h4>Adventure Master Info</h4>
+  <label>Adventure Title: <input id="adv_title" type="text" size="30" placeholder="Title..." required></label><br>
+  <p><label>Author: <input id="adv_author" type="text" placeholder="Authors name..."></label></p>
+  <p><label>URL:    <input id="adv_url" type="text" placeholder="URL..."></label></p>
+  <p><label>Start ID: <select id="adv_sid" name="year"></select></label></p>
+  <p><label>Copyright: <input id="adv_cright" type="text" placeholder="Copyright..."></label></p>
+
+  <p>
+    <button class="button" id="btn_add" style="float: right;" onclick="on_btn_adv_ok()">OK</button>
+    <button class="button" id="btn_cancel" style="float: right;" onclick="on_btn_adv_cancel()">Cancel</button>
+  </p>
+</div>
+
+
+<!-- File Select ============================================================= -->
+
+<div class="divInput" id="file_div" hidden>   
+  <h4>Select Google Drive File</h4>
+  <label>Select File:</label><br>
+  <p><select id="file_box" name="file_box" size="10" style="width: 370px;"></select></p>
+  <p>Adventure Title: <label id="file_title" style="color:red"></label></p>
+
+  <p>
+    <button class="button" id="btn_add" style="float: right;" onclick="on_btn_file_ok()">OK</button>
+    <button class="button" id="btn_cancel" style="float: right;" onclick="on_btn_file_cancel()">Cancel</button>
+  </p>
+</div>
+
+
+<!-- Google Signin / Signout ================================================== -->
+
 <button class="button_google_sign" id="gsiph">Sign in with Google</button>
 <button class="button_google_sign" id="gsoph">Sign out with Google</button>
 
 
-<!-- List of Scripts --> 
+<!-- List of Scripts -->
+<script type="text/javascript" src="xml.js"></script>
 <script type="text/javascript" src="google_drive.js"></script>
 <script type="text/javascript" src="helper.js"></script>
 <script type="text/javascript" src="link.js"></script>
 <script type="text/javascript" src="toolbar.js"></script>
 <script type="text/javascript" src="display.js"></script>
 <script type="text/javascript" src="composer.js"></script>
-<script type="text/javascript" src="inputform.js"></script>
-<script type="text/javascript" src="xml.js"></script>
+<script type="text/javascript" src="inputLocation.js"></script>
+<script type="text/javascript" src="inputAdventure.js"></script>
+<script type="text/javascript" src="inputFileSelect.js"></script>
 
 <script async defer src="https://apis.google.com/js/api.js" onload="gg_gapi_loaded()"></script>
 <script async defer src="https://accounts.google.com/gsi/client" onload="gg_gis_loaded()"></script>
