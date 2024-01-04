@@ -89,6 +89,10 @@ class display {
         this.grabdelta = new Vector(0, 0);
         this.ismousedown = false;
         this.last_mouse_down_tgt;
+        
+        this.location_guide_flag = false;
+        this.location_guide_x = 0;
+        this.location_guide_y = 0;
 
         this.objArr = [];                        // EditBox Array.
         
@@ -223,15 +227,30 @@ setup_canvas() {
         const canvas = document.getElementById(COMPOSER_CANVAS);
         var mousepos;
         
-        if (!this.ismousedown)
+        // Reset the flag everytime we move.
+        this.location_guide_flag = false;
+
+        mousepos = this.get_mouse_pos(canvas, e);
+        
+        // If mouse is not down.
+        if (!this.ismousedown) {
+
+            switch (this.toolbar.get_selected()) {
+                case TOOLBAR_ADD:
+                    this.location_guide_flag = true;
+                    this.location_guide_x = mousepos.x;
+                    this.location_guide_y = mousepos.y;
+                    break;
+            }
+            this.paint(canvas);
             return;
+        }
 
         // tell the browser we're handling this event
         e.preventDefault();
         e.stopPropagation();
 
-        mousepos = this.get_mouse_pos(canvas, e);
-    
+
         this.drag.y = mousepos.y - this.grabdelta.y;
 
         switch (this.toolbar.get_selected()) {
@@ -391,6 +410,8 @@ paint(canvas) {
 
     this.paint_grid(canvas);
     
+    this.paint_location_guides(canvas);
+    
     this.paint_scrollbar(canvas);
     
     this.toolbar.paint_toolbar(canvas);
@@ -479,6 +500,30 @@ paint_grid(canvas) {
             ctx.stroke();
         }
     }
+}
+
+//=====================================================================
+// Paint the dotted lines for guides to position the Location box.
+
+paint_location_guides(canvas) {
+
+    if (this.location_guide_flag == false)
+        return;
+
+    const ctx = canvas.getContext("2d");
+    var x = this.location_guide_x;
+    var y = this.location_guide_y;
+
+    // Dashed line
+    ctx.beginPath();
+    ctx.lineWidth = 0.75;
+    ctx.setLineDash([5, 5]);
+    ctx.moveTo(0, y);
+    ctx.lineTo(this.canvasW, y);
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, this.canvasH);
+    ctx.strokeStyle = '#ff0000';
+    ctx.stroke();
 }
 
 //=====================================================================

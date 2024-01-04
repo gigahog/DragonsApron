@@ -18,16 +18,16 @@ Adventurer Composer
 - AC: Connect view to dragbar location.
 - AC: Move multi locations when selected.
 - AC: BUG: Editing of location text always showing location ID as ID001.
-- AC: When adding location, show vert & horz rule lines.
 - AC: Intergrate Google Bard
 - AC: LineUp On Grid
-- AC: Grey out Load & Save icons till Google Authenicate complete.
-- AC: Save XML of Master info (Adventure title, author, etc)
+- AC: Grey out Load & Save icons till Google Authenticate complete.
+- AC: Introduce new structure for Links.
 
 
 COMPLETE
 =========
 
+- AC: When adding location, show vert & horz rule lines.
 - AC: Save XML of Master info (Adventure title, author, etc)
 - AC: 5sec Backup Timer
 - AC: Intergrate Google Load file

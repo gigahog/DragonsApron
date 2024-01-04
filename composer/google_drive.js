@@ -3,13 +3,16 @@
 
 const COMPOSER_FOLDER = "Adventure Composer";
 
+// List of ALL Scopes: https://developers.google.com/identity/protocols/oauth2/scopes
+
 var CLIENT_ID = '625039578770-9gqlav5o8lbr9tp7pje0ssub319uvmr7.apps.googleusercontent.com';
 var API_KEY = 'AIzaSyAkEDnDMbcLG5MsO9k064-bV7k1FDPkECg';
 var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
-var SCOPES = 'https://www.googleapis.com/auth/drive';
+var SCOPES = 'https://www.googleapis.com/auth/drive  https://www.googleapis.com/auth/userinfo.profile';
 var signinButton = document.getElementById('gsiph');
 var signoutButton = document.getElementById('gsoph');
 let tokenClient;
+let access_token;
 let gapiInited = false;
 let gisInited = false;
 let signedin = false;
@@ -46,9 +49,13 @@ function gg_gis_loaded() {
     tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: CLIENT_ID,
         scope: SCOPES,
-        callback: ''
+        prompt: '',
+        callback: (tokenResponse) => {
+            access_token = tokenResponse.access_token;
+            console.log("gg_gis_loaded() access_token=" + access_token);
+        },
     });
-    console.log("gg_gis_loaded() tokenClient=" + tokenClient);
+    console.log("gg_gis_loaded() tokenClient=" + tokenClient.access_token);
     gisInited = true;
     gg_maybe_enable_buttons();
 }
