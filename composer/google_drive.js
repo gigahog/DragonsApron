@@ -15,7 +15,9 @@ let tokenClient;
 let access_token;
 let gapiInited = false;
 let gisInited = false;
-let signedin = false;
+let signedin_flag = false;
+let credentials_new_flag = false;
+let credentials = [];
 
 
 //==============================================================================
@@ -70,7 +72,7 @@ function gg_maybe_enable_buttons() {
         signoutButton.style.display = 'none';
         
         // We are not signed in yet.
-        signedin = false;
+        signedin_flag = false;
     }
 }
 
@@ -78,7 +80,20 @@ function gg_maybe_enable_buttons() {
 // Is user signed into Google ?
 
 function gg_is_signedin() {
-    return signedin;
+    return signedin_flag;
+}
+
+//==============================================================================
+// Google Credentials.
+
+function gg_is_credential_new() {
+    var tmp = credentials_new_flag;
+    credentials_new_flag = false;
+    return tmp;
+}
+
+function gg_get_credentials() {
+    return credentials;
 }
 
 //==============================================================================
@@ -98,7 +113,8 @@ function gg_handle_authenicate() {
         // Show sign-out button.
         signinButton.style.display = 'none';
         signoutButton.style.display = 'block';
-        signedin = true;
+        signedin_flag = true;
+        gg_check_currentuser();
         gg_check_folder(COMPOSER_FOLDER);
     };
 
@@ -124,7 +140,11 @@ function gg_handle_signout() {
         // Show sign-in button.
         signinButton.style.display = 'block';
         signoutButton.style.display = 'none';
-        signedin = false;
+
+        // Set flags and clear the credentials.
+        signedin_flag = false;
+        credentials_new_flag = true;
+        credentials = [];
     }
 }
 
@@ -263,7 +283,9 @@ function gg_show_list() {
         } else {
             console.log("No Files");
         }
-    })
+    }) /* .catch(err => {
+        console.error("CAUGHT ERROR: " + err);
+    }) */
 }
 
 //==============================================================================
@@ -297,7 +319,7 @@ function gg_read_download(xml_file, condition) {
             update_location_next_id();
             
             // Redraw display.
-            dply.repaint();
+            repaint();
 
         } else if (condition == 'download') {
             var blob = new Blob([res.body], { type: 'plain/text' });
@@ -347,6 +369,22 @@ function gg_delete_file(id) {
         // After delete update the list.
         showList();
     })
+}
+
+//==============================================================================
+// Check current user.
+
+function gg_check_currentuser() {
+    console.log("gg_check_currentuser()");
+
+    gapi.client.load('oauth2', 'v2', function () {
+        gapi.client.oauth2.userinfo.get().execute(function (resp) {
+            // Shows user email
+            console.log(resp.name);
+            credentials = resp;
+            credentials_new_flag = true;
+        })
+    });
 }
 
 //==============================================================================

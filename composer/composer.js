@@ -4,6 +4,7 @@ const COMPOSER_TITLE = "Adventurer Composer";
 var master = new AdventureMaster();     // Adventure Master Class (title, author, etc).
 var dply = new display();               // Display Class.
 var lnk  = new link();                  // Link Class.
+var user = new User();                  // User structure.
 let locationArr = [];                   // Location Array.
 let location_idx = -1;                  // Index into locationArr.
 let location_next_id = 1;
@@ -26,18 +27,19 @@ var doing_work = false;
 var change_flag = false;
 
 const COMPOSER_VERSION_MAJOR = "01";
-const COMPOSER_VERSION_MINOR = "06";
+const COMPOSER_VERSION_MINOR = "07";
 
 const ADV_COMPOSER_HOME_URL = "home.html";
 
 const FONT_TITLE = "bold 18px Helvetica, Arial, sans-serif";
 const FONT_NORMAL = "normal 11px Helvetica, Arial, sans-serif";
 
-const LOCATION_BOX_W = 100;
-const LOCATION_BOX_H = 60;
+const LOCATION_BOX_W = 100;             // Width of Location box (pixels).
+const LOCATION_BOX_H = 60;              // Height of Location box (pixels)
 const LOCATION_TEXT_PAD = 2;
-const DIR_BOX_SZ = 8;
+const DIR_BOX_SZ = 8;                   // Size of direction square in pixels.
 const EMPTY = "";
+const TIMER_FREQ = 5000;                // Timer frequency in ms.
 
 window.addEventListener("load", start_composer);
 
@@ -82,6 +84,12 @@ function XmlFile() {
     this.id = "";                   // Google Drive file id.
 }
 
+function User() {
+    this.name = "";
+    this.pic_url = "";
+    this.email = "";
+}
+
 //=====================================================================
 
 function start_composer() {
@@ -93,7 +101,7 @@ function start_composer() {
     gg_init();
 
     // Start the 5 sec callback timer.
-    timer = setInterval(on_timer, 5000);
+    timer = setInterval(on_timer, TIMER_FREQ);
 }
 
 //=====================================================================
@@ -101,6 +109,12 @@ function start_composer() {
 function print_version() {
     console.log("Game   : " + COMPOSER_TITLE);
     console.log("Version: " + COMPOSER_VERSION_MAJOR + "." + COMPOSER_VERSION_MINOR);
+}
+
+//=====================================================================
+
+function get_link_class() {
+    return lnk;
 }
 
 //=====================================================================
@@ -144,6 +158,12 @@ function on_banner(select) {
     window.open(ADV_COMPOSER_HOME_URL, "_blank");
 }
 
+function on_new_location() {
+    // Reset Location Array.
+    locationArr.length = 0;
+    location_next_id = 1;
+}
+
 function on_load_xml_location() {
     // Create list of google Drive files (stored in global 'flist').
     gg_show_list();
@@ -181,13 +201,69 @@ function on_timer() {
     // Check if any changes need to be saved (User must be authenticated).
 
     if (get_change_flag() && gg_is_signedin()) {
-        
+
         // Reset the 'change' flag.
         reset_change_flag();
-        
+
         // Save changes.
         on_save_xml_location();
     }
+
+    //-----------------------------------------------------------------
+    // Set the credentials.
+
+    if (gg_is_credential_new()) {
+
+        var cred = gg_get_credentials();
+        if (cred.length > 0) {
+            user.name = cred.name;
+            user.pic_url = cred.picture;
+            user.email = EMPTY;
+        } else {
+            user.name = EMPTY;
+            user.pic_url = EMPTY;
+            user.email = EMPTY;
+        }
+        console.log("Name: " + user.name);
+        console.log("Pic : " + user.pic_url);
+
+        var sign = document.getElementById('gsoph');
+        var authimg = document.getElementById('authimg');
+        var authdiv = document.getElementById('authdiv');
+
+        var xstr = (parseInt(sign.offsetLeft) + parseInt(sign.offsetWidth)).toString() + "px";
+        var ystr = (parseInt(sign.offsetTop) + 1).toString() + "px";
+
+        // Set image attributes.
+        authimg.src = user.pic_url;
+        authimg.style.position = 'relative';
+        authimg.style.left = '0px';
+        authimg.style.top = '0px';
+        authimg.style.height = '46px';
+        authimg.style.width = '46px';
+
+        // Set DIV attributes.
+        authdiv.style.position = 'absolute';
+        authdiv.style.left = xstr;
+        authdiv.style.top = ystr;
+        authdiv.style.height = '46px';
+        authdiv.style.width = '46px';
+
+        // Show/hide the div element.
+        if (user.pic_url == EMPTY)
+            document.getElementById("authdiv").hidden = true;   // Hide.
+        else
+            document.getElementById("authdiv").hidden = false;  // Show.
+    }
+}
+
+//=====================================================================
+// Repaint function.
+
+function repaint() {
+
+    // Call the display class repaint function.
+    dply.repaint(lnk);
 }
 
 //=====================================================================
@@ -263,12 +339,12 @@ function add_location(mx, my) {
     loc.rect.w = LOCATION_BOX_W;
     loc.rect.h = LOCATION_BOX_H;
     loc.id = "ID" + location_next_id.toString().padStart(3, '0');
-    loc.name = "default";
+    loc.name = "";
     
-    set_north_square(loc, "");
-    set_south_square(loc, "");
-    set_east_square(loc, "");
-    set_west_square(loc, "");
+    set_north_square(loc, EMPTY, EMPTY);
+    set_south_square(loc, EMPTY, EMPTY);
+    set_east_square(loc, EMPTY, EMPTY);
+    set_west_square(loc, EMPTY, EMPTY);
 
     locationArr.push(loc);
     console.log("Location " + loc.id + " added.");
@@ -278,10 +354,11 @@ function add_location(mx, my) {
 }
 
 //=====================================================================
-// loc - Location Object.
-// id  - Location ID that direction Square is linked to.
+// loc      - Location Object.
+// id       - The ID that this Square is connnected to.
+// con_dir  - The direction that this square is connected to.
 
-function set_north_square(loc, id) {
+function set_north_square(loc, id, con_dir) {
     // North Square.
     ds = new DirSquare();
     ds.direction = "N";
@@ -290,10 +367,15 @@ function set_north_square(loc, id) {
     ds.offset.w = DIR_BOX_SZ;
     ds.offset.h = DIR_BOX_SZ;
     ds.connected_id = id;
+    ds.connected_dir = con_dir;
+    if (ds.connected_id != EMPTY && ds.connected_dir != EMPTY)
+        ds.connected = true;
+    else
+        ds.connected = false;
     loc.squ.push(ds);
 }
 
-function set_south_square(loc, id) {
+function set_south_square(loc, id, con_dir) {
     // South Square.
     ds = new DirSquare();
     ds.direction = "S";
@@ -302,10 +384,15 @@ function set_south_square(loc, id) {
     ds.offset.w = DIR_BOX_SZ;
     ds.offset.h = DIR_BOX_SZ;
     ds.connected_id = id;
+    ds.connected_dir = con_dir;
+    if (ds.connected_id != EMPTY && ds.connected_dir != EMPTY)
+        ds.connected = true;
+    else
+        ds.connected = false;
     loc.squ.push(ds);
 }
 
-function set_east_square(loc, id) {
+function set_east_square(loc, id, con_dir) {
     // East Square.
     ds = new DirSquare();
     ds.direction = "E";
@@ -314,10 +401,15 @@ function set_east_square(loc, id) {
     ds.offset.w = DIR_BOX_SZ;
     ds.offset.h = DIR_BOX_SZ;
     ds.connected_id = id;
+    ds.connected_dir = con_dir;
+    if (ds.connected_id != EMPTY && ds.connected_dir != EMPTY)
+        ds.connected = true;
+    else
+        ds.connected = false;
     loc.squ.push(ds);
 }
 
-function set_west_square(loc, id) {
+function set_west_square(loc, id, con_dir) {
     // West Square.
     ds = new DirSquare();
     ds.direction = "W";
@@ -326,6 +418,11 @@ function set_west_square(loc, id) {
     ds.offset.w = DIR_BOX_SZ;
     ds.offset.h = DIR_BOX_SZ;
     ds.connected_id = id;
+    ds.connected_dir = con_dir;
+    if (ds.connected_id != EMPTY && ds.connected_dir != EMPTY)
+        ds.connected = true;
+    else
+        ds.connected = false;    
     loc.squ.push(ds);
 }
 
@@ -381,7 +478,10 @@ function paint_locations(canvas) {
         yoffset += txth + LOCATION_TEXT_PAD;
         
         // Text: Name.
-        txt = crop_text_to_size(ctx, loc.name, dWidth);
+        txt = loc.name;
+        if (txt == EMPTY)
+            txt = "default"; 
+        txt = crop_text_to_size(ctx, txt, dWidth);
         xstart = (dWidth - get_font_width(ctx, txt)) / 2;
         ystart = scrn.y + yoffset;
         ctx.fillText(txt, scrn.x+xstart, ystart);
@@ -599,8 +699,7 @@ function dump_location() {
             
        console.log("Location: " + loc.name);
             
-       console.log("Description:");
-       console.log("  " + loc.description );
+       console.log("Description: " + loc.description );
 
        for (var i=0; i<loc.object.length; i++) {
             console.log( "Object #" + i + ": " + loc.object[i] );

@@ -48,8 +48,11 @@ function create_xml() {
         location.appendChild(name);
 
         var desc = doc.createElement("description");
-        desc.innerHTML = loc.description;
+        desc.textContent = loc.description;
         location.appendChild(desc);
+        
+        console.log("desc:");
+        console.log(desc);
 
         for (var i = 0; i < loc.object.length; i++) {
             var j = i + 1;
@@ -65,21 +68,22 @@ function create_xml() {
             location.appendChild(opt);
         }
 
+
         var dir_n = doc.createElement("north");
         dir_n.innerHTML = get_id_of_direction(loc.squ, "N");
         location.appendChild(dir_n);
 
-        var dir_n = doc.createElement("south");
-        dir_n.innerHTML = get_id_of_direction(loc.squ, "S");
-        location.appendChild(dir_n);
+        var dir_s = doc.createElement("south");
+        dir_s.innerHTML = get_id_of_direction(loc.squ, "S");
+        location.appendChild(dir_s);
 
-        var dir_n = doc.createElement("east");
-        dir_n.innerHTML = get_id_of_direction(loc.squ, "E");
-        location.appendChild(dir_n);
+        var dir_e = doc.createElement("east");
+        dir_e.innerHTML = get_id_of_direction(loc.squ, "E");
+        location.appendChild(dir_e);
 
-        var dir_n = doc.createElement("west");
-        dir_n.innerHTML = get_id_of_direction(loc.squ, "W");
-        location.appendChild(dir_n);
+        var dir_w = doc.createElement("west");
+        dir_w.innerHTML = get_id_of_direction(loc.squ, "W");
+        location.appendChild(dir_w);
 
         var listen = doc.createElement("listen");
         listen.innerHTML = loc.listen;
@@ -107,17 +111,20 @@ function create_xml() {
 }
 
 //=====================================================================
-// Return the ID assiociated with
+// Return the info assiociated with a direction.
 //  ds_array - Direction Square array.
 //  dirstr   - Direction string e.g "north"
+// Returns:
+//  String made up of: connection_id & connection_dir
+//  e.g.   "ID003-S"  - Means it is connected to the south side of ID003.
 
 function get_id_of_direction(ds_array, dirstr) {
     
     // Walk the direction squares looking for any reference to 'id'.
     for (var ds of ds_array) {
             
-        if (ds.connected_dir == dirstr)
-            return ds.connected_id;
+        if (ds.direction == dirstr  &&  ds.connected_id != EMPTY)
+            return ds.connected_id + "-" + ds.connected_dir;
     }
     return EMPTY;
 }
@@ -182,16 +189,32 @@ function parse_xml_to_location_array(txt) {
                         loc.option.push(y.textContent);
                     break;
                 case "north":
-                    set_north_square(loc, y.textContent);
+                    var parts = y.textContent.split('-');
+                    if (parts.length == 2)
+                        set_north_square(loc, parts[0], parts[1]);
+                    else
+                        set_north_square(loc, EMPTY, EMPTY);
                     break;
                 case "south":
-                    set_south_square(loc, y.textContent);
+                    var parts = y.textContent.split('-');
+                    if (parts.length == 2)
+                        set_south_square(loc, parts[0], parts[1]);
+                    else
+                        set_south_square(loc, EMPTY, EMPTY);
                     break;
                 case "east":
-                    set_east_square(loc, y.textContent);
+                    var parts = y.textContent.split('-');
+                    if (parts.length == 2)
+                        set_east_square(loc, parts[0], parts[1]);
+                    else
+                        set_east_square(loc, EMPTY, EMPTY);
                     break;
                 case "west":
-                    set_west_square(loc, y.textContent);
+                    var parts = y.textContent.split('-');
+                    if (parts.length == 2)
+                        set_west_square(loc, parts[0], parts[1]);
+                    else
+                        set_west_square(loc, EMPTY, EMPTY);
                     break;
                 case "listen":
                     if (y.textContent != "")

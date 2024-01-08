@@ -1,5 +1,6 @@
 // File: inputAdventure.js
 
+const ADV_DIV = "adv_div";
 
 //=====================================================================
 // Start editing Master Adventure.
@@ -50,9 +51,18 @@ function on_edit_master() {
         select.add(option, 0);
     }
 
+    document.getElementById(ADV_DIV).style.position = 'absolute';
+    document.getElementById(ADV_DIV).style.left = '50px';
+    document.getElementById(ADV_DIV).style.top = '70px';
+    document.getElementById(ADV_DIV).style.height = '520px';
+    document.getElementById(ADV_DIV).style.width = '400px';
+    document.getElementById(ADV_DIV).style.border = '5px outset red';
+    document.getElementById(ADV_DIV).style.backgroundColor = 'lightblue';
+    document.getElementById(ADV_DIV).style.textAlign = 'left';
+    document.getElementById(ADV_DIV).style.padding = '10px';
 
     // Show the division element.
-    document.getElementById("adv_div").hidden = false;
+    document.getElementById(ADV_DIV).hidden = false;
 }
 
 //=====================================================================
@@ -67,21 +77,23 @@ function on_btn_adv_ok() {
     master.copyright = document.getElementById("adv_cright").value;
 
     // Hide the division element.
-    document.getElementById("adv_div").hidden = true;
+    document.getElementById(ADV_DIV).hidden = true;
     
     // Flag that there has been a change.
     set_change_flag();
     
-    dply.repaint();
+    // Call composers repaint function.
+    repaint();
 }
 
 
 function on_btn_adv_cancel() {
 
     // Hide the division element.
-    document.getElementById("adv_div").hidden = true;
+    document.getElementById(ADV_DIV).hidden = true;
     
-    dply.repaint();
+    // Call composers repaint function.
+    repaint();
 }
 
 //=====================================================================

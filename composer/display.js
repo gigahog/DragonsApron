@@ -289,7 +289,6 @@ setup_canvas() {
     {
         // Store target of where the mouse was last clicked.
         this.last_mouse_down_tgt = e.target;
-        //console.log("document.mousedown");
     });
     
     
@@ -375,6 +374,8 @@ setup_toolbar() {
                          "./res/toolbar_edit.png", TOOLBAR_EDIT);
     
     // Menu bar.
+    this.toolbar.addmenu("New", "New Location", on_new_location,
+                         "./res/menu_new.png", MENUBAR_NEW);
     this.toolbar.addmenu("Load", "Load XML Location File", on_load_xml_location,
                          "./res/menu_load.png", MENUBAR_LOAD);
     this.toolbar.addmenu("Save", "Save XML Location File", on_save_xml_location,
@@ -396,14 +397,17 @@ get_mouse_pos(canvas, e) {
 
 //=====================================================================
 // Paint function (public member function).
+//  l - Reference the Link class.
 
-repaint() {
+repaint(l) {
     const canvas = document.getElementById(COMPOSER_CANVAS);
     this.paint(canvas);
 }
 
 //=====================================================================
 // Main Paint function (private member function).
+//  canvas - Canvas to paint on.
+//  l      - Reference the Link class.
 
 paint(canvas) {
     this.paint_background(canvas);
@@ -420,9 +424,10 @@ paint(canvas) {
     paint_locations(canvas);
     
     // Render links (current Link & Baked Links)
+    var lnk = get_link_class();
     lnk.paint_current_link(canvas);
     lnk.paint_baked_links(canvas);
-    
+
     // Render the dotted selector box.
     paint_select_box(canvas);
 

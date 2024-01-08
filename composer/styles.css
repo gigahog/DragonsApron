@@ -34,6 +34,8 @@ canvas {
   border: 1px solid black;
 }
 
+// Classes.
+
 .divInput {
   border: 5px outset red;
   background-color: lightblue;
@@ -70,22 +72,16 @@ canvas {
   padding: 0px;
 }
 
-/*
-.button_google_signout {
-  border-radius: 12px;
-  color: white;
-  background-color: rgb(31, 111, 231);
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 0px 0px;
+.auth_div {
+  background-color: black;
   position: absolute;
-  top: 0px;
-  left: 350px;
-  width: 160px;
+  top: 200px;
+  left: 200px;
+  width: 48px;
   height: 48px;
   padding: 0px;
 }
-*/
-                
+
+
+// id's.
+

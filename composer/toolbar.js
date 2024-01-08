@@ -9,6 +9,7 @@ const TOOLBAR_MASTER = 6;
 const BANNER_HOME = 20;
 const MENUBAR_LOAD = 30;
 const MENUBAR_SAVE = 31;
+const MENUBAR_NEW = 32;
 
 const BANNER_HEIGHT = 48;
 const BANNER_WIDTH = 165;
@@ -124,6 +125,11 @@ addmenu(name, desc, callback, icon, selectval) {
 paint_toolbar(canvas) {
 
     const ctx = canvas.getContext('2d');
+    
+    // Draw black background bar.
+    ctx.fillStyle = COLOR_BLACK;
+    ctx.fillRect(0, 0, canvas.width, this.menuH);
+
     
     // Walk the list of Tools.
     for (var tool of this.tools) {

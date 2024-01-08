@@ -146,22 +146,26 @@ on_finish_link(mx, my) {
 // Transfer the A-B link data to the location array.
 
 set_location_array_from_link() {
-    
+
     // Make sure the A-B link is valid.
     if (this.a_id == EMPTY || this.b_id == EMPTY)
         return;
-    
+
     for (var loc of locationArr) {
 
         for (var ds of loc.squ) {
-                
+
             if (this.a_id == loc.id && this.a_direction == ds.direction) {
+                console.log("A ID=" + this.a_id + " DIR=" + this.a_direction);
+                console.log(" B ID=" + this.b_id + " DIR=" + this.b_direction);
                 ds.connected_id  = this.b_id; 
                 ds.connected_dir = this.b_direction;
                 ds.connected = true;
             }
-            
+
             if (this.b_id == loc.id && this.b_direction == ds.direction) {
+                console.log("B ID=" + this.b_id + " DIR=" + this.b_direction);
+                console.log(" A ID=" + this.a_id + " DIR=" + this.a_direction);
                 ds.connected_id  = this.a_id; 
                 ds.connected_dir = this.a_direction;
                 ds.connected = true;
@@ -259,7 +263,8 @@ get_direction_square_rect(id, dir) {
 
 //=====================================================================
 // Handle a left mouse click.
-
+// I think this is not used 
+/*
 on_toolbar_clicked(mx, my) {
     var is_clicked = false;
     
@@ -278,7 +283,7 @@ on_toolbar_clicked(mx, my) {
     
     return is_clicked;
 }
-
+*/
 //=====================================================================
 // 
 //=====================================================================

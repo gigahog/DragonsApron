@@ -1,5 +1,6 @@
 // File: inputFileSelect.js
 
+const FILE_DIV = "file_div";
 
 //=====================================================================
 // Display Google Drive File List
@@ -12,14 +13,14 @@ function on_select_filelist() {
 
     for (var i = 0; i < flist.length; i++)
         console.log( "FLIST: " + flist[i].id + "  " + flist[i].fname );
-    
-    
+
+
     // Fill in the listbox with file names and titles.
     var select = document.getElementById("file_box");
 
-    // Remove all elementsfrom listbox.
+    // Remove all elements from listbox.
     select.innerHTML = "";
-    
+
     // Now add current element back to listbox.
     for (var i=flist.length-1; i >= 0; i--) {
         var option = document.createElement('option');
@@ -27,9 +28,19 @@ function on_select_filelist() {
         option.value = flist[i].id;
         select.add(option, 0);
     }
+    
+    document.getElementById(FILE_DIV).style.position = 'absolute';
+    document.getElementById(FILE_DIV).style.left = '50px';
+    document.getElementById(FILE_DIV).style.top = '70px';
+    document.getElementById(FILE_DIV).style.height = '520px';
+    document.getElementById(FILE_DIV).style.width = '400px';
+    document.getElementById(FILE_DIV).style.border = '5px outset red';
+    document.getElementById(FILE_DIV).style.backgroundColor = 'lightblue';
+    document.getElementById(FILE_DIV).style.textAlign = 'left';
+    document.getElementById(FILE_DIV).style.padding = '10px';
 
     // Show the division element.
-    document.getElementById("file_div").hidden = false;
+    document.getElementById(FILE_DIV).hidden = false;
 }
 
 //=====================================================================
@@ -38,7 +49,7 @@ function on_select_filelist() {
 function on_btn_file_ok() {
     
     // Hide the division element.
-    document.getElementById("file_div").hidden = true;
+    document.getElementById(FILE_DIV).hidden = true;
     
     // Was a file selected ?
     var itemList = document.getElementById("file_box");
@@ -58,16 +69,18 @@ function on_btn_file_ok() {
     
     gg_read_download(xml_file, 'read');
     
-    dply.repaint();
+    // Call composers repaint function.
+    repaint();
 }
 
 
 function on_btn_file_cancel() {
 
     // Hide the division element.
-    document.getElementById("file_div").hidden = true;
+    document.getElementById(FILE_DIV).hidden = true;
     
-    dply.repaint();
+    // Call composers repaint function.
+    repaint();
 }
 
 //=====================================================================

@@ -1,5 +1,6 @@
 // File: inputLocation.js
 
+const LOC_DIV = "loc_div";
 
 //=====================================================================
 // Start editing Location.
@@ -15,16 +16,15 @@ function on_edit_location() {
 
         // Check for ID match.
         if (loc.selected == true) {
-            console.log("HERE01 - " + loc.id + " selected=" + loc.selected);
-            
-            document.getElementById("loc_id").value = loc.id;
+
+            document.getElementById("loc_id").textContent = loc.id;
 
             if (loc.name != EMPTY)
                 document.getElementById("loc_name").value = loc.name;
 
             if (loc.description != EMPTY)
                 document.getElementById("loc_desc").value = loc.description;
-            
+
             for (var i=0; i<loc.object.length; i++) {
                 if (loc.object[i] == EMPTY) continue;
                 if (i == 0) document.getElementById("loc_obj1").value = loc.object[i];
@@ -44,10 +44,18 @@ function on_edit_location() {
         }
     }
 
-    console.log("DOM.loc_id.val=" + document.getElementById("loc_id").value);
-    
+    document.getElementById(LOC_DIV).style.position = 'absolute';
+    document.getElementById(LOC_DIV).style.left = '50px';
+    document.getElementById(LOC_DIV).style.top = '70px';
+    document.getElementById(LOC_DIV).style.height = '520px';
+    document.getElementById(LOC_DIV).style.width = '400px';
+    document.getElementById(LOC_DIV).style.border = '5px outset red';
+    document.getElementById(LOC_DIV).style.backgroundColor = 'lightblue';
+    document.getElementById(LOC_DIV).style.textAlign = 'left';
+    document.getElementById(LOC_DIV).style.padding = '10px';
+
     // Show the division element.
-    document.getElementById("loc_div").hidden = false;
+    document.getElementById(LOC_DIV).hidden = false;
 }
 
 //=====================================================================
@@ -76,21 +84,23 @@ function on_btn_ok() {
     dump_location();
 
     // Hide the division element.
-    document.getElementById("loc_div").hidden = true;
+    document.getElementById(LOC_DIV).hidden = true;
     
     // Flag that there has been a change.
     set_change_flag();
     
-    dply.repaint();
+    // Call composers repaint function.
+    repaint();
 }
 
 
 function on_btn_cancel() {
 
     // Hide the division element.
-    document.getElementById("loc_div").hidden = true;
+    document.getElementById(LOC_DIV).hidden = true;
     
-    dply.repaint();
+    // Call composers repaint function.
+    repaint();
 }
 
 //=====================================================================
