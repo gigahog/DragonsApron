@@ -6,6 +6,7 @@ const TOOLBAR_DELETE = 3;
 const TOOLBAR_LINK = 4;
 const TOOLBAR_EDIT = 5;
 const TOOLBAR_MASTER = 6;
+const TOOLBAR_DISTRIBUTE = 7;
 const BANNER_HOME = 20;
 const MENUBAR_LOAD = 30;
 const MENUBAR_SAVE = 31;

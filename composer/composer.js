@@ -436,6 +436,33 @@ function unselect_all_locations() {
 }
 
 //=====================================================================
+// Are any locations selected ?
+// Return:
+//  true  - One (or more) locations are selected.
+//  false - No items are selected.
+
+function is_anything_selected() {
+    
+    for (var loc of locationArr)
+        if (loc.selected == true)
+            return true;
+    return false;
+}
+
+//=====================================================================
+// Move selected location boxes.
+
+function on_move_selected_locations(dx, dy) {
+    
+    for (var loc of locationArr) {
+        if (loc.selected == true) {
+            loc.rect.x += dx;
+            loc.rect.y += dy;
+        }
+    }
+}
+
+//=====================================================================
 // Paint the Location Boxes.
 
 function paint_locations(canvas) {
@@ -628,42 +655,6 @@ function paint_select_box(canvas) {
     
     // Disable the dotted line.
     ctx.setLineDash([1, 0]);
-}
-
-//=====================================================================
-// Snap coordinates mx,my to grid.
-// Returns: Vector2 of nearst grid coordinates (Screen coord).
-
-function snap_to_grid(mx, my) {
-    var tmp = new Vector(mx, my);
-    
-    // Get screen offset coordinates.
-    var offset = dply.get_screen_offset();
-    
-    // Find world coordinates.
-    tmp.x += offset.x;
-    tmp.y += offset.y;
-
-    // Find remainder.
-    var remx = tmp.x % GRID_THROW_X;
-    var remy = tmp.y % GRID_THROW_Y;
-
-    // Decide whether to round up or down.
-    if (remx >= GRID_THROW_X>>1)
-        tmp.x += (GRID_THROW_X - remx);  // Round Up X
-    else
-        tmp.x -= remx;                    // Round Down X
-        
-    if (remy >= GRID_THROW_Y>>1)
-        tmp.y += (GRID_THROW_Y - remy);  // Round Up Y
-    else
-        tmp.y -= remy;                    // Round Down Y
-    
-    // Convert back to screen coordinates.
-    tmp.x -= offset.x;
-    tmp.y -= offset.y;
-    
-    return tmp;
 }
 
 //=====================================================================

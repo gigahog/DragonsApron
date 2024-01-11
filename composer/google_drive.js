@@ -24,7 +24,6 @@ let credentials = [];
 // Google sign initialize.
 
 function gg_init() {
-    console.log("gg_init()");
     gg_gapi_loaded();
     gg_gis_loaded()
 }
@@ -57,16 +56,14 @@ function gg_gis_loaded() {
             console.log("gg_gis_loaded() access_token=" + access_token);
         },
     });
-    console.log("gg_gis_loaded() tokenClient=" + tokenClient.access_token);
+    //console.log("gg_gis_loaded() tokenClient=" + tokenClient.access_token);
     gisInited = true;
     gg_maybe_enable_buttons();
 }
 
 
 function gg_maybe_enable_buttons() {
-    console.log("gg_maybe_enable_buttons()");
-    console.log(" gapiInited=" + gapiInited);
-    console.log(" gisInited=" + gisInited);
+
     if (gapiInited && gisInited) {
         signinButton.style.display = 'block';
         signoutButton.style.display = 'none';
@@ -114,6 +111,7 @@ function gg_handle_authenicate() {
         signinButton.style.display = 'none';
         signoutButton.style.display = 'block';
         signedin_flag = true;
+
         gg_check_currentuser();
         gg_check_folder(COMPOSER_FOLDER);
     };

@@ -30,6 +30,8 @@ const COMPOSER_CANVAS = "composer";
 const GRID_THROW_X = 10;
 const GRID_THROW_Y = 10;
 
+const SEL_MOVE = 2;
+
 let KEY_CODE = {
     BACKSPACE: 8,
     TAB: 9,
@@ -297,7 +299,6 @@ setup_canvas() {
         const canvas = document.getElementById(COMPOSER_CANVAS);
                 
         if (this.last_mouse_down_tgt == canvas) {
-            //console.log("document.keydown");
             this.on_key_press(canvas, e.key, e.keyCode);
 
             e.preventDefault();
@@ -372,7 +373,9 @@ setup_toolbar() {
                          "./res/toolbar_link.png", TOOLBAR_LINK);
     this.toolbar.addtool("Edit", "Edit location description", on_edit_location,
                          "./res/toolbar_edit.png", TOOLBAR_EDIT);
-    
+    this.toolbar.addtool("Distribute", "Evenly distribute location boxes", on_evenly_distribute,
+                         "./res/toolbar_distribute.png", TOOLBAR_DISTRIBUTE);
+
     // Menu bar.
     this.toolbar.addmenu("New", "New Location", on_new_location,
                          "./res/menu_new.png", MENUBAR_NEW);
@@ -627,14 +630,24 @@ on_key_press(canvas, key, code) {
             this.set_dragbar(0.0);
             break;
         case KEY_CODE.LEFT:
+            if (is_anything_selected())
+                on_move_selected_locations(-SEL_MOVE, 0);
             break;
         case KEY_CODE.RIGHT:
+            if (is_anything_selected())
+                on_move_selected_locations(SEL_MOVE, 0);
             break;
         case KEY_CODE.UP:
-            this.on_scroll_by_line(canvas, 1, -1);
+            if (is_anything_selected())
+                on_move_selected_locations(0, -SEL_MOVE);
+            else
+                this.on_scroll_by_line(canvas, 1, -1);
             break;
         case KEY_CODE.DOWN:
-            this.on_scroll_by_line(canvas, 1, 1);
+            if (is_anything_selected())
+                on_move_selected_locations(0, SEL_MOVE);
+            else
+                this.on_scroll_by_line(canvas, 1, 1);
             break;
         case KEY_CODE.DELETE:
             break;

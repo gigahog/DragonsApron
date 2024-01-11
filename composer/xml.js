@@ -50,9 +50,6 @@ function create_xml() {
         var desc = doc.createElement("description");
         desc.textContent = loc.description;
         location.appendChild(desc);
-        
-        console.log("desc:");
-        console.log(desc);
 
         for (var i = 0; i < loc.object.length; i++) {
             var j = i + 1;
