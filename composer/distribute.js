@@ -38,6 +38,7 @@ function snap_to_grid(mx, my) {
 }
 
 //=====================================================================
+//=====================================================================
 // Evenly Distribute location boxes.
 
 function on_evenly_distribute() {
@@ -67,13 +68,15 @@ function on_evenly_distribute() {
     console.log("ymin=" + ymin + " ymax=" + ymax);
 
     // Split the min/max rectangle into horizontal slices (Distribute horizontally).
-    var dx = Math.round(SLICE_MULTI*LOCATION_BOX_W);
-    var sortme = [];
+    var width = Math.round(SLICE_MULTI*LOCATION_BOX_W);
     var count = 0;
-    for (let xx = xmin; xx < xmax; xx+=dx) {
+    var exit_flag = false;
+    var xx = xmin;
+        
+    while (!exit_flag) {
 
         // Create a slice (rectangle).
-        var slice = new Rectangle(xx, ymin, SLICE_MULTI*LOCATION_BOX_W, ymax-ymin);
+        var slice = new Rectangle(xx, ymin, width, ymax-ymin);
         var slice_cnt = 0;
         
         for (var loc of locationArr) {
@@ -88,17 +91,39 @@ function on_evenly_distribute() {
         }
 
         if (slice_cnt > 0)
-            count++;        
+            count++;
+        
+        // Whats the smallest X which has loc.tmp == -1.
+        xx = Number.MAX_SAFE_INTEGER;
+        
+        for (var loc of locationArr) {
+            if (!loc.selected) continue;
+        
+            if (loc.tmp == -1 && loc.rect.x < xx)
+                xx = loc.rect.x;
+        }
+
+        // NOTE: xx is now set to create the next slice.
+        
+        // Check if we should exit while loop.
+        if (xx == Number.MAX_SAFE_INTEGER)
+            exit_flag = true;
     }
 
     // Adjust 'count'.
     count--;
 
+    // Make sure we don't divide-by-zero.
+    if (count == 0)
+        var XDIV = xmax - xmin;
+    else
+        var XDIV = (xmax - xmin) / count;
+
     for (var loc of locationArr) {
         if (!loc.selected) continue;
 
         if (loc.tmp != -1)
-            loc.rect.x = (((xmax - xmin) / count) * loc.tmp) + xmin;
+            loc.rect.x = (XDIV * loc.tmp) + xmin;
     }
 
 
@@ -126,17 +151,20 @@ function on_evenly_distribute() {
 
 
     // Split the min/max rectangle into horizontal slices (Distribute horizontally).
-    var dy = Math.round(SLICE_MULTI*LOCATION_BOX_H);
+    var height = Math.round(SLICE_MULTI*LOCATION_BOX_H);
     var count = 0;
-    for (let yy = ymin; yy < ymax; yy+=dy) {
+    var exit_flag = false;
+    var yy = ymin;
+        
+    while (!exit_flag) {
 
         // Create a slice (rectangle).
-        var slice = new Rectangle(xmin, yy, xmax-xmin, SLICE_MULTI*LOCATION_BOX_H);
+        var slice = new Rectangle(xmin, yy, xmax-xmin, height);
         var slice_cnt = 0;
         
         for (var loc of locationArr) {
             if (!loc.selected) continue;
-
+        
             if (is_point_in_rect(loc.rect.x, loc.rect.y, slice) == true) {
                 
                 // The location box falls into the slice so assign it a tmp index.
@@ -147,19 +175,43 @@ function on_evenly_distribute() {
 
         if (slice_cnt > 0)
             count++;
+        
+        // Whats the smallest Y which has loc.tmp == -1.
+        yy = Number.MAX_SAFE_INTEGER;
+        
+        for (var loc of locationArr) {
+            if (!loc.selected) continue;
+        
+            if (loc.tmp == -1 && loc.rect.y < yy)
+                yy = loc.rect.y;
+        }
+
+        // NOTE: yy is now set to create the next slice.
+        
+        // Check if we should exit while loop.
+        if (yy == Number.MAX_SAFE_INTEGER)
+            exit_flag = true;
     }
+
 
     // Adjust 'count'.
     count--;
 
+    // Make sure we don't divide-by-zero.
+    if (count == 0)
+        var YDIV = ymax - ymin;
+    else
+        var YDIV = (ymax - ymin) / count;
+    
     for (var loc of locationArr) {
         if (!loc.selected) continue;
 
         if (loc.tmp != -1)
-            loc.rect.y = (((ymax - ymin) / count) * loc.tmp) + ymin;
+            loc.rect.y = (YDIV * loc.tmp) + ymin;
     }
 
 }
 
 //=====================================================================
+
 
