@@ -23,6 +23,8 @@ Adventurer Composer
 COMPLETE
 =========
 
+- AC: BUG: Fixed bug when a location is deleted but its connected locations have links to 0,0.
+- AC: Connected 'delete' key to delete function.
 - AC: Distribution verion 2
 - AC: Move multi locations when selected.
 - AC: LineUp On Grid (Distribution)

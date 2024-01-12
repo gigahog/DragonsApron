@@ -32,6 +32,9 @@ const GRID_THROW_Y = 10;
 
 const SEL_MOVE = 2;
 
+const KEY_OFFSET = 100;
+const KEY_DELETE = TOOLBAR_DELETE + KEY_OFFSET;
+
 let KEY_CODE = {
     BACKSPACE: 8,
     TAB: 9,
@@ -650,6 +653,7 @@ on_key_press(canvas, key, code) {
                 this.on_scroll_by_line(canvas, 1, 1);
             break;
         case KEY_CODE.DELETE:
+            on_delete(KEY_DELETE);
             break;
         default:
             // Add all other characters to end of string.

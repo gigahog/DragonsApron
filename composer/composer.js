@@ -281,6 +281,7 @@ function remove_ref(id) {
             if (ds.connected_id == id) {
                 ds.connected_id = EMPTY;
                 ds.connected_dir = EMPTY;
+                ds.connected = false;
                 cnt++;
             }
         }
