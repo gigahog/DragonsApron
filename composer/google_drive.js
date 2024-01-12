@@ -17,8 +17,18 @@ let gapiInited = false;
 let gisInited = false;
 let signedin_flag = false;
 let credentials_new_flag = false;
-let credentials = [];
+let credentials = new UserInfo();
+let driveinfo_new_flag = false;
 
+
+//==============================================================================
+
+function UserInfo() {
+    this.name = "";
+    this.picture = "";
+    this.email = "";
+    this.is_drive_ready = false;
+}
 
 //==============================================================================
 // Google sign initialize.
@@ -93,6 +103,13 @@ function gg_get_credentials() {
     return credentials;
 }
 
+function gg_is_driveinfo_new() {
+    var tmp = driveinfo_new_flag;
+    driveinfo_new_flag = false;
+
+    return tmp;
+}
+
 //==============================================================================
 // Authenticate (Sign-in).
 
@@ -142,7 +159,10 @@ function gg_handle_signout() {
         // Set flags and clear the credentials.
         signedin_flag = false;
         credentials_new_flag = true;
-        credentials = [];
+        credentials.name = "";
+        credentials.picture = "";
+        driveinfo_new_flag = true;
+        credentials.is_drive_ready = false;
     }
 }
 
@@ -161,6 +181,9 @@ function gg_check_folder(folder) {
                 var file = files[i];
                 localStorage.setItem('parent_folder', file.id);
                 console.log('Folder Available');
+                
+                driveinfo_new_flag = true;
+                credentials.is_drive_ready = true;
             }
         } else {
             // If folder is not available then create it.
@@ -247,6 +270,9 @@ function gg_create_folder(folder) {
     request.execute(function (response) {
         console.log("parent_folder id=" + response.id);
         localStorage.setItem('parent_folder', response.id);
+
+        driveinfo_new_flag = true;
+        credentials.is_drive_ready = true;
     })
 }
 
@@ -379,7 +405,8 @@ function gg_check_currentuser() {
         gapi.client.oauth2.userinfo.get().execute(function (resp) {
             // Shows user email
             console.log(resp.name);
-            credentials = resp;
+            credentials.name = resp.name;
+            credentials.picture = resp.picture;
             credentials_new_flag = true;
         })
     });

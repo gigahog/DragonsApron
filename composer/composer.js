@@ -88,6 +88,7 @@ function User() {
     this.name = "";
     this.pic_url = "";
     this.email = "";
+    this.is_drive_ready = false;
 }
 
 //=====================================================================
@@ -215,15 +216,11 @@ function on_timer() {
     if (gg_is_credential_new()) {
 
         var cred = gg_get_credentials();
-        if (cred.length > 0) {
-            user.name = cred.name;
-            user.pic_url = cred.picture;
-            user.email = EMPTY;
-        } else {
-            user.name = EMPTY;
-            user.pic_url = EMPTY;
-            user.email = EMPTY;
-        }
+
+        user.name = cred.name;
+        user.pic_url = cred.picture;
+        user.email = EMPTY;
+
         console.log("Name: " + user.name);
         console.log("Pic : " + user.pic_url);
 
@@ -254,6 +251,26 @@ function on_timer() {
             document.getElementById("authdiv").hidden = true;   // Hide.
         else
             document.getElementById("authdiv").hidden = false;  // Show.
+    }
+    
+    //--------------------------------------------------------------
+    // Check if Google Drive & folder are ready.
+    
+    if (gg_is_driveinfo_new()) {
+        
+        var cred = gg_get_credentials();
+        console.log(cred);
+        if (cred.is_drive_ready) {
+            // Enable the Load & Save Menu.
+            dply.toolbar.set_enabled("Load", true);
+            dply.toolbar.set_enabled("Save", true);
+            user.is_drive_ready = true;
+        } else {
+            // Disable the Load & Save Menu.
+            dply.toolbar.set_enabled("Load", false);
+            dply.toolbar.set_enabled("Save", false);
+            user.is_drive_ready = false;
+        }
     }
 }
 

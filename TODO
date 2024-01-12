@@ -17,12 +17,12 @@ Adventurer Composer
 - AC: Add horizontal dragbar.
 - AC: Connect view to dragbar location.
 - AC: Integrate Google Bard
-- AC: Grey out Load & Save icons till Google Authenticate complete.
 
 
 COMPLETE
 =========
 
+- AC: Grey out Load & Save icons till Google Authenticate complete.
 - AC: BUG: Fixed bug when a location is deleted but its connected locations have links to 0,0.
 - AC: Connected 'delete' key to delete function.
 - AC: Distribution verion 2

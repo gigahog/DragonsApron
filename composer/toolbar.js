@@ -27,10 +27,12 @@ function Tool() {
     this.description = "";
     this.callback = null;
     this.icon = "";
+    this.icon_disable = "";
     this.rect = (0, 0, 0, 0);
     this.selected = false;
     this.select_value = TOOLBAR_NONE;
     this.type = TYPE_TOOLBAR;
+    this.enabled = true;
 }
 
 //=====================================================================
@@ -52,7 +54,7 @@ class toolbar {
         
         this.tools = [];
         
-        // Add a banner.
+        // Add a title banner.
         this.addbanner(COMPOSER_TITLE, "", on_banner, "./res/Title/banner04.png", BANNER_HOME);
     }
 
@@ -68,6 +70,7 @@ addbanner(name, desc, callback, icon, selectval) {
     t.icon = icon;
     t.select_value = selectval;
     t.type = TYPE_BANNER;
+    t.enabled = true;
 
     // Banner goes in the top lefthand corner.
     t.rect = new Rectangle(0, 0, BANNER_WIDTH, BANNER_HEIGHT);
@@ -87,6 +90,7 @@ addtool(name, desc, callback, icon, selectval) {
     t.icon = icon;
     t.select_value = selectval;
     t.type = TYPE_TOOLBAR;
+    t.enabled = true;
 
     // All Tool icons are vertical.
     t.rect = new Rectangle(0, (this.toolCountV*this.toolH)+this.toolBaseY,
@@ -100,7 +104,7 @@ addtool(name, desc, callback, icon, selectval) {
 
 //=====================================================================
 
-addmenu(name, desc, callback, icon, selectval) {
+addmenu(name, desc, callback, icon, icon_dis, selectval) {
     
     var t = new Tool;
 
@@ -108,8 +112,10 @@ addmenu(name, desc, callback, icon, selectval) {
     t.description = desc;
     t.callback = callback;
     t.icon = icon;
+    t.icon_disable = icon_dis;
     t.select_value = selectval;
     t.type = TYPE_MENUBAR;
+    t.enabled = true;
 
     // All Menu icons are horizontal.
     t.rect = new Rectangle((this.toolCountH*this.menuW)+this.toolBaseX,  0,
@@ -119,6 +125,21 @@ addmenu(name, desc, callback, icon, selectval) {
     
     // Increment the horizontal menu count.
     this.toolCountH++;
+}
+
+//=====================================================================
+// Set the enabled state.
+//  name - Name of tool.
+//  state - Enabled State (true or false).
+
+set_enabled(name, state) {
+
+     // Walk the list of Tools.
+    for (var tool of this.tools) {
+    
+        if (name === tool.name)
+            tool.enabled = state;
+    }
 }
 
 //=====================================================================
@@ -135,8 +156,12 @@ paint_toolbar(canvas) {
     // Walk the list of Tools.
     for (var tool of this.tools) {
     
+        // Set the tools image.
         const img = new Image();
-        img.src = tool.icon;
+        if (tool.enabled)
+            img.src = tool.icon;
+        else
+            img.src = tool.icon_disable;
         
         // Select part of the image to draw.
         var sx = 0;
@@ -175,6 +200,9 @@ on_toolbar_clicked(mx, my) {
     
     // Walk the list of Tools.
     for (var tool of this.tools) {
+
+        // Don't check any further if this tool icon is disabled.
+        if ( !tool.enabled ) continue;
 
         if ( is_point_in_rect(mx, my, tool.rect) == true ) {
             this.unselect_all();

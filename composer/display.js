@@ -381,11 +381,15 @@ setup_toolbar() {
 
     // Menu bar.
     this.toolbar.addmenu("New", "New Location", on_new_location,
-                         "./res/menu_new.png", MENUBAR_NEW);
+                         "./res/menu_new.png", "", MENUBAR_NEW);
     this.toolbar.addmenu("Load", "Load XML Location File", on_load_xml_location,
-                         "./res/menu_load.png", MENUBAR_LOAD);
+                         "./res/menu_load.png", "./res/menu_load_disable.png", MENUBAR_LOAD);
     this.toolbar.addmenu("Save", "Save XML Location File", on_save_xml_location,
-                         "./res/menu_save.png", MENUBAR_SAVE);
+                         "./res/menu_save.png", "./res/menu_save_disable.png", MENUBAR_SAVE);
+    
+    // Disable the Load & Save Menu.
+    this.toolbar.set_enabled("Load", false);
+    this.toolbar.set_enabled("Save", false);
 }
 
 //=====================================================================
