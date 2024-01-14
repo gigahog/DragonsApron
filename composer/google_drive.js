@@ -1,5 +1,8 @@
 // File: google_drive.js
 
+// NOTE: I had to disable Opaque Response Blocking
+//  In about:config
+//   browser.opaqueResponseBlocking.javascriptValidator = false
 
 const COMPOSER_FOLDER = "Adventure Composer";
 
@@ -34,6 +37,9 @@ function UserInfo() {
 // Google sign initialize.
 
 function gg_init() {
+    signoutButton.style.display = 'none';
+    signinButton.style.display = 'none';
+
     gg_gapi_loaded();
     gg_gis_loaded()
 }
@@ -247,6 +253,18 @@ function gg_upload(txt) {
             doing_work = false;
         });
     }
+}
+
+//==============================================================================
+
+function gg_drive_about() {
+    console.log("gg_drive_about()");
+
+    gapi.client.drive.about.get({ }).then(function(response) {
+        // Handle the results here (response.result has the parsed body).
+        console.log("Response", response);
+    },
+    function(err) { console.error("Execute error", err); });
 }
 
 //==============================================================================

@@ -27,7 +27,7 @@ var doing_work = false;
 var change_flag = false;
 
 const COMPOSER_VERSION_MAJOR = "01";
-const COMPOSER_VERSION_MINOR = "07";
+const COMPOSER_VERSION_MINOR = "08";
 
 const ADV_COMPOSER_HOME_URL = "home.html";
 
@@ -157,6 +157,7 @@ function on_banner(select) {
     // The Banner was clicked.  Open another browser tab with the URL of
     // the Home Page of 'Adventure Composer'.
     window.open(ADV_COMPOSER_HOME_URL, "_blank");
+    gg_drive_about();
 }
 
 function on_new_location() {
