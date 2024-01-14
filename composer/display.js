@@ -35,6 +35,9 @@ const SEL_MOVE = 2;
 const KEY_OFFSET = 100;
 const KEY_DELETE = TOOLBAR_DELETE + KEY_OFFSET;
 
+const SCROLL_WIDTH = 16;
+const DRAG_WIDTH = 12;
+
 let KEY_CODE = {
     BACKSPACE: 8,
     TAB: 9,
@@ -88,8 +91,8 @@ class display {
         this.lineSkip = 10;
         this.currenty = 20;
 
-        this.vert_scroll = new Rectangle(0, 0, 12, 0);
-        this.vert_drag = new Rectangle(0, 0, 10, 40);
+        this.vert_scroll = new Rectangle(0, 0, SCROLL_WIDTH, 0);
+        this.vert_drag = new Rectangle(0, 0, DRAG_WIDTH, 40);
 
         this.grabdelta = new Vector(0, 0);
         this.ismousedown = false;
