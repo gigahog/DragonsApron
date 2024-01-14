@@ -88,8 +88,8 @@ class display {
         this.lineSkip = 10;
         this.currenty = 20;
 
-        this.scroll = new Rectangle(0, 0, 12, 0);
-        this.drag = new Rectangle(0, 0, 10, 40);
+        this.vert_scroll = new Rectangle(0, 0, 12, 0);
+        this.vert_drag = new Rectangle(0, 0, 10, 40);
 
         this.grabdelta = new Vector(0, 0);
         this.ismousedown = false;
@@ -137,18 +137,18 @@ setup_canvas() {
 
         
         // IF click on Drag area, then Calculate the grabdelta.
-        if (is_point_in_rect(mousepos.x, mousepos.y, this.drag)) {
-            this.grabdelta.x = mousepos.x - this.drag.x;
-            this.grabdelta.y = mousepos.y - this.drag.y;
+        if (is_point_in_rect(mousepos.x, mousepos.y, this.vert_drag)) {
+            this.grabdelta.x = mousepos.x - this.vert_drag.x;
+            this.grabdelta.y = mousepos.y - this.vert_drag.y;
             return;
         }
 
-        // IF click on Scroll area, then move the dragbar up or down by set amount.
-        if (is_point_in_rect(mousepos.x, mousepos.y, this.scroll)) {
-            if (mousepos.y > this.drag.y)
-                this.drag.y += this.drag.h;
-            else if (mousepos.y < this.drag.y)
-                this.drag.y -= this.drag.h;
+        // IF click on Scroll area, then move the vertical dragbar up or down by set amount.
+        if (is_point_in_rect(mousepos.x, mousepos.y, this.vert_scroll)) {
+            if (mousepos.y > this.vert_drag.y)
+                this.vert_drag.y += this.vert_drag.h;
+            else if (mousepos.y < this.vert_drag.y)
+                this.vert_drag.y -= this.vert_drag.h;
 
             // Re-Paint Canvas.
             this.paint(canvas);
@@ -256,7 +256,7 @@ setup_canvas() {
         e.stopPropagation();
 
 
-        this.drag.y = mousepos.y - this.grabdelta.y;
+        this.vert_drag.y = mousepos.y - this.grabdelta.y;
 
         switch (this.toolbar.get_selected()) {
             case TOOLBAR_ADD:
@@ -324,16 +324,16 @@ on_mouse_wheel(e) {
     let scrollDirection;
     let wheelData = e.wheelDelta;
 
-    // The scroll wheel direction for IE/Chrome vs. Firefox is reversed.
+    // The Y-scroll wheel direction for IE/Chrome vs. Firefox is reversed.
     if (wheelData)
         scrollDirection = wheelData;
     else
         scrollDirection = -1 * e.detail;
 
     if (scrollDirection > 0)
-        this.drag.y -= this.drag.h;     // Scrolling up.
+        this.vert_drag.y -= this.vert_drag.h;     // Scrolling up.
     else
-        this.drag.y += this.drag.h;     // Scrolling down.
+        this.vert_drag.y += this.vert_drag.h;     // Scrolling down.
 
     // Re-Paint Canvas.
     this.paint(canvas);
@@ -417,7 +417,6 @@ repaint(l) {
 //=====================================================================
 // Main Paint function (private member function).
 //  canvas - Canvas to paint on.
-//  l      - Reference the Link class.
 
 paint(canvas) {
     this.paint_background(canvas);
@@ -426,7 +425,7 @@ paint(canvas) {
     
     this.paint_location_guides(canvas);
     
-    this.paint_scrollbar(canvas);
+    this.paint_scrollbars(canvas);
     
     this.toolbar.paint_toolbar(canvas);
     
@@ -446,10 +445,10 @@ paint(canvas) {
     var len = this.get_total_length();
 
     // Create percentage value between 0 and 1.0.
-    var percent = this.drag.y / (this.scroll.h - this.drag.h);
+    var percent = this.vert_drag.y / (this.vert_scroll.h - this.vert_drag.h);
 
     // Calculate the pixel to start rendering at.
-    var pxl_start = (len * percent) - this.drag.h;
+    var pxl_start = (len * percent) - this.vert_drag.h;
     // Make sure pxl_start is not (-ve).
     if (pxl_start < 0) pxl_start = 0;
 
@@ -471,28 +470,29 @@ paint_background(canvas) {
 }
 
 //=====================================================================
-// Draw the scroll bar.
+// Draw the scroll bar (Vertical & Horizontal).
 
-paint_scrollbar(canvas) {
+paint_scrollbars(canvas) {
     const ctx = canvas.getContext("2d");
 
     // Draw Scroll bar.
-    this.scroll.h = this.canvasH;
-    this.scroll.x = this.canvasW - this.scroll.w;
+    this.vert_scroll.h = this.canvasH - BANNER_HEIGHT;
+    this.vert_scroll.x = this.canvasW - this.vert_scroll.w;
+    this.vert_scroll.y = BANNER_HEIGHT;
     ctx.fillStyle = COLOR_SCROLLBAR_GREY;
-    ctx.fillRect(this.scroll.x, this.scroll.y, this.scroll.w, this.scroll.h);
+    ctx.fillRect(this.vert_scroll.x, this.vert_scroll.y, this.vert_scroll.w, this.vert_scroll.h);
 
-    // Make sure drag position doesn't go past the min or max.
-    if (this.drag.y < this.scroll.y)
-        this.drag.y = this.scroll.y;
+    // Make sure vertical drag position doesn't go past the min or max.
+    if (this.vert_drag.y < this.vert_scroll.y)
+        this.vert_drag.y = this.vert_scroll.y;
 
-    if (this.drag.y > (this.scroll.h - this.drag.h))
-        this.drag.y = this.scroll.h - this.drag.h;
+    if (this.vert_drag.y > (this.vert_scroll.y + this.vert_scroll.h - this.vert_drag.h))
+        this.vert_drag.y = this.vert_scroll.y + this.vert_scroll.h - this.vert_drag.h;
 
     // Draw Drag bar.
-    this.drag.x = this.scroll.x + ((this.scroll.w - this.drag.w) / 2);
-    ctx.fillStyle = "rgb(193, 193, 193)";
-    ctx.fillRect(this.drag.x, this.drag.y, this.drag.w, this.drag.h);
+    this.vert_drag.x = this.vert_scroll.x + ((this.vert_scroll.w - this.vert_drag.w) / 2);
+    ctx.fillStyle = COLOR_DRAGBAR_GREY;
+    ctx.fillRect(this.vert_drag.x, this.vert_drag.y, this.vert_drag.w, this.vert_drag.h);
 }
 
 //=====================================================================
@@ -542,10 +542,10 @@ paint_location_guides(canvas) {
 }
 
 //=====================================================================
-// Set percentage for Drag bar.
+// Set percentage for Vertical Drag bar.
 //  percent - Value between 0 and 1.0.
 
-set_dragbar(percent) {
+set_vert_dragbar(percent) {
     
     // Limit the percentage between 0.0 and 1.0.
     if (percent > 1.0)
@@ -556,29 +556,29 @@ set_dragbar(percent) {
     // Find total length in pixels.
     var len = this.get_total_length();
 
-    // Set the new position of the drag bar.
-    this.drag.y = (this.scroll.h - this.drag.h) * percent;
+    // Set the new position of the vertical drag bar.
+    this.vert_drag.y = (this.vert_scroll.h - this.vert_drag.h) * percent;
     
-    //console.log("percent=" + percent + " drag.y=" + this.drag.y);
+    //console.log("percent=" + percent + " vert_drag.y=" + this.vert_drag.y);
 }
 
 //=====================================================================
-// Make sure the dragbar is visible. Set Drag bar to bottom.
+// Make sure the vertical dragbar is visible. Set Drag bar to bottom.
 
-set_dragbar_to_bottom() {    
+set_vert_dragbar_to_bottom() {    
     
     var len = this.get_total_length();
 
     // Create percentage value between 0 and 1.0.
-    var percent = this.drag.y / (this.scroll.h - this.drag.h);
+    var percent = this.vert_drag.y / (this.vert_scroll.h - this.vert_drag.h);
 
     // Calculate the pixel to start rendering at.
-    var pxl_start = (len * percent) - this.drag.h;
+    var pxl_start = (len * percent) - this.vert_drag.h;
     // Make sure pxl_start is not (-ve).
     if (pxl_start < 0) pxl_start = 0;
     
-    if ( (this.currenty > pxl_start) && (this.currenty < (pxl_start + this.scroll.h)) )
-        this.set_dragbar(1.0);
+    if ( (this.currenty > pxl_start) && (this.currenty < (pxl_start + this.vert_scroll.h)) )
+        this.set_vert_dragbar(1.0);
 }
 
 //=====================================================================
@@ -586,7 +586,7 @@ set_dragbar_to_bottom() {
 
 get_total_length() {
 
-    var len = this.currenty - this.scroll.h;
+    var len = this.currenty - this.vert_scroll.h;
 
     if (len < 0)
         len = 0;
@@ -631,10 +631,10 @@ on_key_press(canvas, key, code) {
             this.on_scroll_by_line(canvas, 10, 1);
             break;
         case KEY_CODE.END:
-            this.set_dragbar(1.0);
+            this.set_vert_dragbar(1.0);
             break;
         case KEY_CODE.HOME:
-            this.set_dragbar(0.0);
+            this.set_vert_dragbar(0.0);
             break;
         case KEY_CODE.LEFT:
             if (is_anything_selected())
@@ -648,13 +648,13 @@ on_key_press(canvas, key, code) {
             if (is_anything_selected())
                 on_move_selected_locations(0, -SEL_MOVE);
             else
-                this.on_scroll_by_line(canvas, 1, -1);
+                this.on_vert_scroll_by_line(canvas, 1, -1);
             break;
         case KEY_CODE.DOWN:
             if (is_anything_selected())
                 on_move_selected_locations(0, SEL_MOVE);
             else
-                this.on_scroll_by_line(canvas, 1, 1);
+                this.on_vert_scroll_by_line(canvas, 1, 1);
             break;
         case KEY_CODE.DELETE:
             on_delete(KEY_DELETE);
@@ -678,7 +678,7 @@ on_key_press(canvas, key, code) {
 //  count  - Number of lies to scroll by.
 //  dir    - Direction (-1 is up, +1 is down).
 
-on_scroll_by_line(canvas, count, dir) {
+on_vert_scroll_by_line(canvas, count, dir) {
     const ctx = canvas.getContext("2d");
     var h = get_font_height(ctx, "A");
     
@@ -687,8 +687,8 @@ on_scroll_by_line(canvas, count, dir) {
     // Find total length in pixels.
     var len = this.get_total_length();
 
-    // Set the new position of the drag bar.
-    var percent = this.drag.y / (this.scroll.h - this.drag.h);
+    // Set the new position of the vertical drag bar.
+    var percent = this.vert_drag.y / (this.vert_scroll.h - this.vert_drag.h);
     
     // Find the pixel position (using the dragbar position).
     var pos = len * percent;
@@ -699,7 +699,7 @@ on_scroll_by_line(canvas, count, dir) {
     // Find new percentage.
     percent = pos / len;
     
-    this.set_dragbar(percent);
+    this.set_vert_dragbar(percent);
 }
 
 //=====================================================================
