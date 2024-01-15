@@ -35,8 +35,8 @@ const SEL_MOVE = 2;
 const KEY_OFFSET = 100;
 const KEY_DELETE = TOOLBAR_DELETE + KEY_OFFSET;
 
-const SCROLL_WIDTH = 16;
-const DRAG_WIDTH = 12;
+const VSCROLL_WIDTH = 16;
+const VDRAG_WIDTH = 12;
 
 let KEY_CODE = {
     BACKSPACE: 8,
@@ -91,10 +91,6 @@ class display {
         this.lineSkip = 10;
         this.currenty = 20;
 
-        this.vert_scroll = new Rectangle(0, 0, SCROLL_WIDTH, 0);
-        this.vert_drag = new Rectangle(0, 0, DRAG_WIDTH, 40);
-
-        this.grabdelta = new Vector(0, 0);
         this.ismousedown = false;
         this.last_mouse_down_tgt;
         
@@ -105,6 +101,9 @@ class display {
         this.objArr = [];                        // EditBox Array.
         
         this.toolbar = new toolbar;
+
+        this.scrollH = new scrollbar;
+        this.scrollV = new scrollbar;
         
         // Screen offset.
         this.offset = new Vector(0, 0);
@@ -125,46 +124,42 @@ setup_canvas() {
 
     this.setup_toolbar();
     this.set_canvas_size();
+    this.setup_scrollbars();
 
     this.paint(canvas);
-    
+
     // Register callbacks.
     canvas.addEventListener("mousedown", (e) =>
     {
-        // tell the browser we're handling this event.
         const canvas = document.getElementById(COMPOSER_CANVAS);
-        var mousepos;
+        var mousepos = this.get_mouse_pos(canvas, e);
 
-        mousepos = this.get_mouse_pos(canvas, e);
+        // Set mousedown flag.
         this.ismousedown = true;
 
-        
+
         // IF click on Drag area, then Calculate the grabdelta.
-        if (is_point_in_rect(mousepos.x, mousepos.y, this.vert_drag)) {
-            this.grabdelta.x = mousepos.x - this.vert_drag.x;
-            this.grabdelta.y = mousepos.y - this.vert_drag.y;
+        if (this.scrollV.on_click_dragbar(mousepos.x, mousepos.y) ||
+            this.scrollH.on_click_dragbar(mousepos.x, mousepos.y))
             return;
-        }
+
 
         // IF click on Scroll area, then move the vertical dragbar up or down by set amount.
-        if (is_point_in_rect(mousepos.x, mousepos.y, this.vert_scroll)) {
-            if (mousepos.y > this.vert_drag.y)
-                this.vert_drag.y += this.vert_drag.h;
-            else if (mousepos.y < this.vert_drag.y)
-                this.vert_drag.y -= this.vert_drag.h;
+        if (this.scrollV.on_click_scrollbar(mousepos.x, mousepos.y) ||
+            this.scrollH.on_click_scrollbar(mousepos.x, mousepos.y)) {
 
             // Re-Paint Canvas.
             this.paint(canvas);
             return;
         }
-        
+
         // Check if clicked on toolbar area.
         if (this.toolbar.on_toolbar_clicked(mousepos.x, mousepos.y)) {
             //console.log("Clicked on toolbar.");
             this.paint(canvas);
             return;
         }
-        
+
         // If we are here then the click was on main part of canvas.
         // What we do depends on the toolbar selection.
         switch (this.toolbar.get_selected()) {
@@ -233,12 +228,11 @@ setup_canvas() {
     canvas.addEventListener("mousemove", (e) =>
     {
         const canvas = document.getElementById(COMPOSER_CANVAS);
-        var mousepos;
+        var mousepos = this.get_mouse_pos(canvas, e);
         
         // Reset the flag everytime we move.
         this.location_guide_flag = false;
 
-        mousepos = this.get_mouse_pos(canvas, e);
         
         // If mouse is not down.
         if (!this.ismousedown) {
@@ -258,8 +252,11 @@ setup_canvas() {
         e.preventDefault();
         e.stopPropagation();
 
+        if (this.scrollV.is_dragbar_hit(mousepos.x, mousepos.y))
+            this.scrollV.set_grab_pos( mousepos.y );
 
-        this.vert_drag.y = mousepos.y - this.grabdelta.y;
+        if (this.scrollH.is_dragbar_hit(mousepos.x, mousepos.y))
+            this.scrollH.set_grab_pos( mousepos.x );
 
         switch (this.toolbar.get_selected()) {
             case TOOLBAR_ADD:
@@ -293,8 +290,7 @@ setup_canvas() {
     });
 
 
-    document.addEventListener("mousedown", (e) =>
-    {
+    document.addEventListener("mousedown", (e) => {
         // Store target of where the mouse was last clicked.
         this.last_mouse_down_tgt = e.target;
     });
@@ -316,6 +312,7 @@ setup_canvas() {
     {
         console.log("window resize");
         this.set_canvas_size();
+        this.setup_scrollbars();
     });
 }
 
@@ -334,9 +331,9 @@ on_mouse_wheel(e) {
         scrollDirection = -1 * e.detail;
 
     if (scrollDirection > 0)
-        this.vert_drag.y -= this.vert_drag.h;     // Scrolling up.
+        this.scrollV.scroll_drag_up();
     else
-        this.vert_drag.y += this.vert_drag.h;     // Scrolling down.
+        this.scrollV.scroll_drag_down();
 
     // Re-Paint Canvas.
     this.paint(canvas);
@@ -396,6 +393,27 @@ setup_toolbar() {
 }
 
 //=====================================================================
+// Initialize the Scrollbar positions.
+
+setup_scrollbars() {
+    var t, w_scroll, h_scroll, x_scroll, y_scroll;
+
+    t = VERTICAL_SLIDE;
+    w_scroll = VSCROLL_WIDTH;
+    h_scroll = this.canvasH - BANNER_HEIGHT - VSCROLL_WIDTH;
+    x_scroll = this.canvasW - w_scroll;
+    y_scroll = BANNER_HEIGHT;
+    this.scrollV.init_scrollbar(t, x_scroll, y_scroll, w_scroll, h_scroll);
+    
+    t = HORIZONTAL_SLIDE;
+    w_scroll = this.canvasW - VSCROLL_WIDTH;
+    h_scroll = VSCROLL_WIDTH;
+    x_scroll = 0;
+    y_scroll = this.canvasH - h_scroll;
+    this.scrollH.init_scrollbar(t, x_scroll, y_scroll, w_scroll, h_scroll);
+}
+
+//=====================================================================
 // Returns mouse position relative to canvas.
 
 get_mouse_pos(canvas, e) {
@@ -428,7 +446,8 @@ paint(canvas) {
     
     this.paint_location_guides(canvas);
     
-    this.paint_scrollbars(canvas);
+    this.scrollV.paint_scrollbar(canvas);
+    this.scrollH.paint_scrollbar(canvas);
     
     this.toolbar.paint_toolbar(canvas);
     
@@ -444,14 +463,14 @@ paint(canvas) {
     paint_select_box(canvas);
 
 
-    // Find total length in pixels.
-    var len = this.get_total_length();
+    // Find total document size in pixels.
+    var sz = this.get_total_size();
 
-    // Create percentage value between 0 and 1.0.
-    var percent = this.vert_drag.y / (this.vert_scroll.h - this.vert_drag.h);
+    // Get percentage of dragbar.
+    var percent = this.scrollV.get_percentage();
 
     // Calculate the pixel to start rendering at.
-    var pxl_start = (len * percent) - this.vert_drag.h;
+    var pxl_start = (sz[0] * percent) - this.scrollV.get_drag_height();
     // Make sure pxl_start is not (-ve).
     if (pxl_start < 0) pxl_start = 0;
 
@@ -464,9 +483,6 @@ paint(canvas) {
 paint_background(canvas) {
     const ctx = canvas.getContext("2d");
 
-    //ctx.clearRect(0, 0, this.canvasW, this.canvasH);
-    //ctx.beginPath(); 
-    
     // Clear canvas to background color.
     ctx.fillStyle = COLOR_WHITE;
     ctx.fillRect(0, 0, this.canvasW, this.canvasH);
@@ -476,26 +492,28 @@ paint_background(canvas) {
 // Draw the scroll bar (Vertical & Horizontal).
 
 paint_scrollbars(canvas) {
-    const ctx = canvas.getContext("2d");
 
-    // Draw Scroll bar.
-    this.vert_scroll.h = this.canvasH - BANNER_HEIGHT;
-    this.vert_scroll.x = this.canvasW - this.vert_scroll.w;
-    this.vert_scroll.y = BANNER_HEIGHT;
-    ctx.fillStyle = COLOR_SCROLLBAR_GREY;
-    ctx.fillRect(this.vert_scroll.x, this.vert_scroll.y, this.vert_scroll.w, this.vert_scroll.h);
+    this.scrollV.paint_scrollbar(canvas);
+    this.scrollH.paint_scrollbar(canvas);
+}
 
-    // Make sure vertical drag position doesn't go past the min or max.
-    if (this.vert_drag.y < this.vert_scroll.y)
-        this.vert_drag.y = this.vert_scroll.y;
+//=====================================================================
+// Make sure the vertical dragbar is visible. Set Drag bar to end.
 
-    if (this.vert_drag.y > (this.vert_scroll.y + this.vert_scroll.h - this.vert_drag.h))
-        this.vert_drag.y = this.vert_scroll.y + this.vert_scroll.h - this.vert_drag.h;
+set_dragbar_to_bottom() {
+    
+    var len = this.get_total_length();
 
-    // Draw Drag bar.
-    this.vert_drag.x = this.vert_scroll.x + ((this.vert_scroll.w - this.vert_drag.w) / 2);
-    ctx.fillStyle = COLOR_DRAGBAR_GREY;
-    ctx.fillRect(this.vert_drag.x, this.vert_drag.y, this.vert_drag.w, this.vert_drag.h);
+    // Create percentage value between 0 and 1.0.
+    var percent = this.scrollV.get_percentage();
+
+    // Calculate the pixel to start rendering at.
+    var pxl_start = (len * percent) - this.scrollV.get_drag_height();
+    // Make sure pxl_start is not (-ve).
+    if (pxl_start < 0) pxl_start = 0;
+    
+    if ( (this.currenty > pxl_start) && (this.currenty < (pxl_start + this.scrollV.get_scroll_height())) )
+        this.set_dragbar(1.0);
 }
 
 //=====================================================================
@@ -545,56 +563,13 @@ paint_location_guides(canvas) {
 }
 
 //=====================================================================
-// Set percentage for Vertical Drag bar.
-//  percent - Value between 0 and 1.0.
+// Get size of document in pixels.
 
-set_vert_dragbar(percent) {
-    
-    // Limit the percentage between 0.0 and 1.0.
-    if (percent > 1.0)
-        percent = 1.0;
-    if (percent < 0.0)
-        percent = 0.0;
-    
-    // Find total length in pixels.
-    var len = this.get_total_length();
+get_total_size() {
 
-    // Set the new position of the vertical drag bar.
-    this.vert_drag.y = (this.vert_scroll.h - this.vert_drag.h) * percent;
-    
-    //console.log("percent=" + percent + " vert_drag.y=" + this.vert_drag.y);
-}
+    var sz = [this.total_w, this.total_h];
 
-//=====================================================================
-// Make sure the vertical dragbar is visible. Set Drag bar to bottom.
-
-set_vert_dragbar_to_bottom() {    
-    
-    var len = this.get_total_length();
-
-    // Create percentage value between 0 and 1.0.
-    var percent = this.vert_drag.y / (this.vert_scroll.h - this.vert_drag.h);
-
-    // Calculate the pixel to start rendering at.
-    var pxl_start = (len * percent) - this.vert_drag.h;
-    // Make sure pxl_start is not (-ve).
-    if (pxl_start < 0) pxl_start = 0;
-    
-    if ( (this.currenty > pxl_start) && (this.currenty < (pxl_start + this.vert_scroll.h)) )
-        this.set_vert_dragbar(1.0);
-}
-
-//=====================================================================
-// Get length of text in pixels.
-
-get_total_length() {
-
-    var len = this.currenty - this.vert_scroll.h;
-
-    if (len < 0)
-        len = 0;
-
-    return len;
+    return sz;
 }
 
 //=====================================================================
@@ -650,14 +625,14 @@ on_key_press(canvas, key, code) {
         case KEY_CODE.UP:
             if (is_anything_selected())
                 on_move_selected_locations(0, -SEL_MOVE);
-            else
-                this.on_vert_scroll_by_line(canvas, 1, -1);
+            //else
+            //    this.on_vert_scroll_by_line(canvas, 1, -1);
             break;
         case KEY_CODE.DOWN:
             if (is_anything_selected())
                 on_move_selected_locations(0, SEL_MOVE);
-            else
-                this.on_vert_scroll_by_line(canvas, 1, 1);
+            //else
+            //    this.on_vert_scroll_by_line(canvas, 1, 1);
             break;
         case KEY_CODE.DELETE:
             on_delete(KEY_DELETE);
@@ -680,7 +655,7 @@ on_key_press(canvas, key, code) {
 //  canvas - Canvas.
 //  count  - Number of lies to scroll by.
 //  dir    - Direction (-1 is up, +1 is down).
-
+/*
 on_vert_scroll_by_line(canvas, count, dir) {
     const ctx = canvas.getContext("2d");
     var h = get_font_height(ctx, "A");
@@ -704,7 +679,7 @@ on_vert_scroll_by_line(canvas, count, dir) {
     
     this.set_vert_dragbar(percent);
 }
-
+*/
 //=====================================================================
 // Get screen offset.
 // Return Type: Vector2
