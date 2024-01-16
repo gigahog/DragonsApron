@@ -196,11 +196,20 @@ scroll_drag_down() {
 }
 
 //=====================================================================
-// Get percentage of dragbar.
+// Get percentage of dragbar (Create percentage value between 0 and 1.0).
 
 get_percentage() {
-    // Create percentage value between 0 and 1.0.
-    var percent = this.drag.y / (this.scroll.h - this.drag.h);
+    var percent = 0.0;
+
+    if (this.type == VERTICAL_SLIDE)
+        percent = this.drag.y / (this.scroll.h - this.drag.h);
+    
+    if (this.type == HORIZONTAL_SLIDE)
+        percent = this.drag.x / (this.scroll.w - this.drag.w);
+
+    if (percent > 1.0) percent = 1.0;
+    if (percent < 0.0) percent = 0.0;
+
     return percent;
 }
 

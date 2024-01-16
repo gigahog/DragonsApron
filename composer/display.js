@@ -108,6 +108,9 @@ class display {
         
         // Screen offset.
         this.offset = new Vector(0, 0);
+        
+        // Size of World canvas. 
+        this.world = new Vector(0, 0);
     }
 
 //=====================================================================
@@ -271,7 +274,6 @@ setup_canvas() {
 
         switch (this.toolbar.get_selected()) {
             case TOOLBAR_ADD:
-                add_location(mousepos.x, mousepos.y);
                 break;
             case TOOLBAR_SELECT:
                 if (this.ismousedown == true)
@@ -351,6 +353,22 @@ on_mouse_wheel(e) {
 }
 
 //=====================================================================
+// Calculate the offset based on the dragbar position.
+
+calc_offset() {
+
+    // Get dragbar percentages.
+    var x_per = this.scrollH.get_percentage();
+    var y_per = this.scrollV.get_percentage();
+
+    this.offset.x = this.world.x * x_per;
+    this.offset.y = this.world.y * y_per;
+
+    //console.log(" offset.x=" + this.offset.x + " (x_per=" + x_per + ")");
+    //console.log(" offset.y=" + this.offset.y + " (y_per=" + y_per + ")");
+}
+
+//=====================================================================
 // Sets the canvas size.
 
 set_canvas_size() {
@@ -364,6 +382,10 @@ set_canvas_size() {
 
     this.canvasW = canvas.getBoundingClientRect().width;
     this.canvasH = canvas.getBoundingClientRect().height;
+
+    // Set the World size.
+    this.world.x = this.canvasW * 1.5;
+    this.world.y = this.canvasH * 1.5;
     
     // Re-Paint Canvas.
     this.paint(canvas);
@@ -451,18 +473,12 @@ repaint(l) {
 //  canvas - Canvas to paint on.
 
 paint(canvas) {
+    this.calc_offset();
+
     this.paint_background(canvas);
 
     this.paint_grid(canvas);
-    
-    this.paint_location_guides(canvas);
-    
-    this.scrollV.paint_scrollbar(canvas);
-    this.scrollH.paint_scrollbar(canvas);
-    this.paint_scroll_square(canvas);
-    
-    this.toolbar.paint_toolbar(canvas);
-    
+
     // Render the Location boxes.
     paint_locations(canvas);
     
@@ -473,6 +489,15 @@ paint(canvas) {
 
     // Render the dotted selector box.
     paint_select_box(canvas);
+    
+    this.paint_location_guides(canvas);
+    
+    this.scrollV.paint_scrollbar(canvas);
+    this.scrollH.paint_scrollbar(canvas);
+    this.paint_scroll_square(canvas);
+    
+    this.toolbar.paint_toolbar(canvas);
+    
 
 
     // Find total document size in pixels.
