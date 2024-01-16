@@ -25,6 +25,8 @@ class scrollbar {
         this.type = VERTICAL_SLIDE;             // Either HORIZONTAL_SLIDE or VERTICAL_SLIDE.
 
         this.grabdelta = new Vector(0, 0);
+        
+        this.selected = false;
     }
 
 //=====================================================================
@@ -145,6 +147,26 @@ on_click_scrollbar(mx, my) {
 
 //=====================================================================
 
+on_pageup() {
+
+    if (this.type == VERTICAL_SLIDE)
+        this.drag.y -= this.drag.h;
+    else
+        this.drag.x -= this.drag.w;
+}
+
+//=====================================================================
+
+on_pagedown() {
+
+    if (this.type == VERTICAL_SLIDE)
+        this.drag.y += this.drag.h;
+    else
+        this.drag.x += this.drag.w;
+}
+
+//=====================================================================
+
 on_click_dragbar(mx, my) {
     //console.log("on_click_dragbar() " + this.get_type());
 
@@ -217,6 +239,17 @@ is_dragbar_hit(mx, my) {
         return true;
 
     return false;
+}
+
+//=====================================================================
+// Set the 'selected' flag.
+
+set_selected(val) {
+    this.selected = val;
+}
+
+is_selected() {
+    return this.selected;
 }
 
 //=====================================================================

@@ -18,6 +18,7 @@ const COLOR_DK_GREEN    = "#008b00";
 const COLOR_DK_BLUE     = "#00008b";
 const COLOR_DK_ORANGE   = "#FFC000";
 const COLOR_DK_BROWN    = "#5C4033";
+const COLOR_SKY_BLUE    = "#75aad9";
 
 const COLOR_TB_LT_GREY = "rgb(241, 241, 241)";
 const COLOR_TB_DK_GREY = "rgb(193, 193, 193)";
@@ -35,8 +36,8 @@ const SEL_MOVE = 2;
 const KEY_OFFSET = 100;
 const KEY_DELETE = TOOLBAR_DELETE + KEY_OFFSET;
 
-const VSCROLL_WIDTH = 16;
-const VDRAG_WIDTH = 12;
+const SCROLL_WIDTH = 16;
+const DRAG_WIDTH = 12;
 
 let KEY_CODE = {
     BACKSPACE: 8,
@@ -138,10 +139,16 @@ setup_canvas() {
         this.ismousedown = true;
 
 
-        // IF click on Drag area, then Calculate the grabdelta.
-        if (this.scrollV.on_click_dragbar(mousepos.x, mousepos.y) ||
-            this.scrollH.on_click_dragbar(mousepos.x, mousepos.y))
+        // Check for click on Drag area.
+        if (this.scrollV.on_click_dragbar(mousepos.x, mousepos.y)) {
+            this.scrollV.set_selected(true);
             return;
+        }
+        
+        if (this.scrollH.on_click_dragbar(mousepos.x, mousepos.y)) {
+            this.scrollH.set_selected(true);
+            return;
+        }
 
 
         // IF click on Scroll area, then move the vertical dragbar up or down by set amount.
@@ -220,6 +227,10 @@ setup_canvas() {
         
         this.ismousedown = false;
         
+        // Mouse button is up, so unselect the scrollbar selection flags.
+        this.scrollV.set_selected(false);
+        this.scrollH.set_selected(false);
+        
         // Re-Paint Canvas.
         this.paint(canvas);
     });
@@ -252,10 +263,10 @@ setup_canvas() {
         e.preventDefault();
         e.stopPropagation();
 
-        if (this.scrollV.is_dragbar_hit(mousepos.x, mousepos.y))
+        if (this.scrollV.is_dragbar_hit(mousepos.x, mousepos.y) || this.scrollV.is_selected())
             this.scrollV.set_grab_pos( mousepos.y );
 
-        if (this.scrollH.is_dragbar_hit(mousepos.x, mousepos.y))
+        if (this.scrollH.is_dragbar_hit(mousepos.x, mousepos.y) || this.scrollH.is_selected())
             this.scrollH.set_grab_pos( mousepos.x );
 
         switch (this.toolbar.get_selected()) {
@@ -399,15 +410,15 @@ setup_scrollbars() {
     var t, w_scroll, h_scroll, x_scroll, y_scroll;
 
     t = VERTICAL_SLIDE;
-    w_scroll = VSCROLL_WIDTH;
-    h_scroll = this.canvasH - BANNER_HEIGHT - VSCROLL_WIDTH;
+    w_scroll = SCROLL_WIDTH;
+    h_scroll = this.canvasH - BANNER_HEIGHT - SCROLL_WIDTH;
     x_scroll = this.canvasW - w_scroll;
     y_scroll = BANNER_HEIGHT;
     this.scrollV.init_scrollbar(t, x_scroll, y_scroll, w_scroll, h_scroll);
     
     t = HORIZONTAL_SLIDE;
-    w_scroll = this.canvasW - VSCROLL_WIDTH;
-    h_scroll = VSCROLL_WIDTH;
+    w_scroll = this.canvasW - SCROLL_WIDTH;
+    h_scroll = SCROLL_WIDTH;
     x_scroll = 0;
     y_scroll = this.canvasH - h_scroll;
     this.scrollH.init_scrollbar(t, x_scroll, y_scroll, w_scroll, h_scroll);
@@ -448,6 +459,7 @@ paint(canvas) {
     
     this.scrollV.paint_scrollbar(canvas);
     this.scrollH.paint_scrollbar(canvas);
+    this.paint_scroll_square(canvas);
     
     this.toolbar.paint_toolbar(canvas);
     
@@ -495,6 +507,17 @@ paint_scrollbars(canvas) {
 
     this.scrollV.paint_scrollbar(canvas);
     this.scrollH.paint_scrollbar(canvas);
+}
+
+//=====================================================================
+// Paint the bottom-right square at the meeting of the Horizontal & Vertical scrollbars.
+
+paint_scroll_square(canvas) {
+    const ctx = canvas.getContext("2d");
+
+    // Clear bottom-right square.
+    ctx.fillStyle = COLOR_SKY_BLUE;
+    ctx.fillRect(this.canvasW-SCROLL_WIDTH, this.canvasH-SCROLL_WIDTH, SCROLL_WIDTH, SCROLL_WIDTH);
 }
 
 //=====================================================================
@@ -603,10 +626,10 @@ on_key_press(canvas, key, code) {
         case KEY_CODE.ALT:
             break;
         case KEY_CODE.PAGEUP:
-            this.on_scroll_by_line(canvas, 10, -1);
+            this.scrollV.on_pageup();
             break;
         case KEY_CODE.PAGEDOWN:
-            this.on_scroll_by_line(canvas, 10, 1);
+            this.scrollV.on_pagedown();
             break;
         case KEY_CODE.END:
             this.set_vert_dragbar(1.0);
