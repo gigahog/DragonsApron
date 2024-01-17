@@ -101,7 +101,7 @@ function start_composer() {
     // Initialize Google Drive Authentication.
     gg_init();
 
-    // Start the 5 sec callback timer.
+    // Start the main callback timer.
     timer = setInterval(on_timer, TIMER_FREQ);
 }
 
@@ -207,6 +207,11 @@ function on_download_xml_file() {
 }
 
 function on_google_id() {
+
+    if (gg_is_signedin()) {
+        console.log("Name: " + user.name);
+        console.log("Pic : " + user.pic_url);
+    }
 }
 
 //=====================================================================
