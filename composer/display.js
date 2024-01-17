@@ -584,8 +584,8 @@ paint_grid(canvas) {
     var xrem = this.offset.x % GRID_THROW_X;
     var yrem = this.offset.y % GRID_THROW_Y;
     
-    for (let x = xrem; x <= this.canvasW; x+=GRID_THROW_X) {
-        for (let y = yrem; y <= this.canvasH; y+=GRID_THROW_Y) {
+    for (let x = -xrem; x <= this.canvasW+xrem; x+=GRID_THROW_X) {
+        for (let y = -yrem; y <= this.canvasH+xrem; y+=GRID_THROW_Y) {
             ctx.beginPath();
             ctx.moveTo(x-1, y);
             ctx.lineTo(x+1, y);

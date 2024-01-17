@@ -14,7 +14,7 @@ The Dragons Apron Story
 
 Adventurer Composer
 --------------------
-
+- AC: Extend the size of the world when a location is put close to the edge.
 - AC: Integrate Google Bard
 
 
@@ -22,6 +22,7 @@ Adventurer Composer
 COMPLETE
 =========
 
+- AC: BUG: The grid 'dots' seem to move in the wrong direction when scrolling.
 - AC: Fix links to use world coordinates.
 - AC: Implemented Google Download from Drive.
 - AC: Add 'Select All' toolbar button.
