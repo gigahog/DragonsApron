@@ -34,7 +34,7 @@ canvas {
   border: 1px solid black;
 }
 
-// Classes.
+/* Classes ============================================ */
 
 .divInput {
   border: 5px outset red;
@@ -72,16 +72,6 @@ canvas {
   padding: 0px;
 }
 
-.auth_div {
-  background-color: black;
-  position: absolute;
-  top: 200px;
-  left: 200px;
-  width: 48px;
-  height: 48px;
-  padding: 0px;
-}
 
-
-// id's.
+/* id's ================================================ */
 
