@@ -27,7 +27,7 @@ var doing_work = false;
 var change_flag = false;
 
 const COMPOSER_VERSION_MAJOR = "01";
-const COMPOSER_VERSION_MINOR = "08";
+const COMPOSER_VERSION_MINOR = "09";
 
 const ADV_COMPOSER_HOME_URL = "home.html";
 
