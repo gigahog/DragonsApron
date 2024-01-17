@@ -14,7 +14,7 @@ The Dragons Apron Story
 
 Adventurer Composer
 --------------------
-- AC: Fix links to use world coordinates.
+
 - AC: Integrate Google Bard
 
 
@@ -22,6 +22,7 @@ Adventurer Composer
 COMPLETE
 =========
 
+- AC: Fix links to use world coordinates.
 - AC: Implemented Google Download from Drive.
 - AC: Add 'Select All' toolbar button.
 - AC: Fix location boxes to use world cordinates.

@@ -1,4 +1,4 @@
-
+// File: link.js
 
 //=====================================================================
 // Constants.
@@ -29,13 +29,12 @@ class link {
 
 //=====================================================================
 // Event: Mouse button down.
+//  mx - Mouse X Position (World coordinates).
+//  my - Mouse Y Position (World coordinates).
 
 on_add_link(mx, my) {
 
-    // Convert mouse coords to World coords.
-    var wld = dply.screen2world(mx, my);
-
-    // Check if mouse is on a location box direction square.
+    // Check if mouse is on a N,S,E,W direction square of a location box.
 
     var box = new Rectangle(0, 0, 0, 0);
 
@@ -49,7 +48,7 @@ on_add_link(mx, my) {
             box.w = ds.offset.w + (FORCE_FIELD_PAD*2);
             box.h = ds.offset.h + (FORCE_FIELD_PAD*2);
 
-            if (is_point_in_rect(wld.x, wld.y, box)) {
+            if (is_point_in_rect(mx, my, box)) {
                 // Hit a location box.
 
                 // Direction Square.
@@ -67,7 +66,8 @@ on_add_link(mx, my) {
                 
                 this.b_id = EMPTY;
                 this.b_direction = EMPTY;
-                this.b_pos = dply.screen2world(mx, my);
+                this.b_pos.x = mx;
+                this.b_pos.y = my;
             
                 this.current = true;
                 return true;
@@ -80,26 +80,28 @@ on_add_link(mx, my) {
 
 //=====================================================================
 // Event: Move mouse
+//  mx - Mouse X Position (World coordinates).
+//  my - Mouse Y Position (World coordinates).
 
 on_move_link(mx, my) {
     
     if (this.current == true) {
         this.b_id = EMPTY;
         this.b_direction = EMPTY;
-        this.b_pos = dply.screen2world(mx, my);
+        this.b_pos.x = mx;
+        this.b_pos.y = my;
     }
 }
 
 //=====================================================================
 // Event: Mouse button up.
+//  mx - Mouse X Position (World coordinates).
+//  my - Mouse Y Position (World coordinates).
 
 on_finish_link(mx, my) {
     if (this.current == true) {
         this.current = false;
-        
-        // Convert mouse coords to World coords.
-        var wld = dply.screen2world(mx, my);
-    
+            
         // Check if mouse is on a location box direction square.
         var box = new Rectangle(0, 0, 0, 0);
 
@@ -113,7 +115,7 @@ on_finish_link(mx, my) {
                 box.w = ds.offset.w + (FORCE_FIELD_PAD*2);
                 box.h = ds.offset.h + (FORCE_FIELD_PAD*2);
                 
-                if (is_point_in_rect(wld.x, wld.y, box)) {
+                if (is_point_in_rect(mx, my, box)) {
                     // Hit a location box.
 
                     // Direction Square.
@@ -124,7 +126,8 @@ on_finish_link(mx, my) {
                 
                     this.b_id = loc.id;
                     this.b_direction = ds.direction;
-                    this.b_pos = dply.screen2world(mx, my);
+                    this.b_pos.x = mx;
+                    this.b_pos.y = my;
                     console.log("HIT: Loc B:" + this.b_id + " Dir:" + this.b_direction);
                 }
             }
@@ -195,7 +198,7 @@ paint_current_link(canvas) {
         ctx.lineTo(b_end.x, b_end.y);   // Draw a line.
         ctx.stroke();                   // Render the path
 
-        // Fill all rectangle.
+        // Fill rectangles at both ends of the link.
         ctx.fillStyle = COLOR_RED;
         ctx.fillRect(a_end.x, a_end.y, DIR_BOX_SZ, DIR_BOX_SZ);
         ctx.fillRect(b_end.x-(DIR_BOX_SZ>>1), b_end.y-(DIR_BOX_SZ>>1), DIR_BOX_SZ, DIR_BOX_SZ);
@@ -214,10 +217,14 @@ paint_baked_links(canvas) {
         for (var ds of loc.squ) {
 
             if (ds.connected == true) {
+                
+                // NOTE: This is returned in screen coordinates.
                 var box1 = this.get_direction_square_rect(ds.connected_id, ds.connected_dir);
-                            
-                box2.x = loc.rect.x + ds.offset.x;
-                box2.y = loc.rect.y + ds.offset.y;
+                
+                // Make sure this is also in screen coordinates.
+                var point = dply.world2screen(loc.rect.x + ds.offset.x, loc.rect.y + ds.offset.y);
+                box2.x = point.x;
+                box2.y = point.y;
                 box2.w = ds.offset.w;
                 box2.h = ds.offset.h;
                 
@@ -238,6 +245,7 @@ paint_baked_links(canvas) {
 
 //=====================================================================
 // 
+// Return the rectangle in Screen coordinates.
 
 get_direction_square_rect(id, dir) {
     var box = new Rectangle(0, 0, 0, 0);
@@ -248,8 +256,10 @@ get_direction_square_rect(id, dir) {
 
             if (loc.id == id && ds.direction == dir) {
                 
-                box.x = loc.rect.x + ds.offset.x;
-                box.y = loc.rect.y + ds.offset.y;
+                var point = dply.world2screen(loc.rect.x + ds.offset.x, loc.rect.y + ds.offset.y);
+                
+                box.x = point.x;
+                box.y = point.y;
                 box.w = ds.offset.w;
                 box.h = ds.offset.h;
             
@@ -261,29 +271,6 @@ get_direction_square_rect(id, dir) {
     return box;
 }
 
-//=====================================================================
-// Handle a left mouse click.
-// I think this is not used 
-/*
-on_toolbar_clicked(mx, my) {
-    var is_clicked = false;
-    
-    // Walk the list of Tools.
-    for (var tool of this.tools) {
-
-        if ( is_point_in_rect(mx, my, tool.rect) == true ) {
-            this.unselect_all();
-            tool.selected = true;
-            is_clicked = true;
-            
-            // Toolbar callback function.
-            tool.callback( tool.select_value );
-        }
-    }
-    
-    return is_clicked;
-}
-*/
 //=====================================================================
 // 
 //=====================================================================

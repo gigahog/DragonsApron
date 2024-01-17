@@ -188,7 +188,7 @@ setup_canvas() {
                 start_select_box(mousepos.x, mousepos.y);
                 break;
             case TOOLBAR_LINK:
-                lnk.on_add_link(mousepos.x, mousepos.y);
+                lnk.on_add_link(worldmouse.x, worldmouse.y);
                 set_change_flag();
                 break;
             case TOOLBAR_NONE:
@@ -204,6 +204,7 @@ setup_canvas() {
     canvas.addEventListener("mouseup", (e) =>
     {
         var mousepos = this.get_mouse_pos(canvas, e);
+        var worldmouse = this.screen2world(mousepos.x, mousepos.y);
 
         // tell the browser we're handling this event
         e.preventDefault();
@@ -222,7 +223,7 @@ setup_canvas() {
                         finish_select_box(mousepos.x, mousepos.y);
                     break;
                 case TOOLBAR_LINK:
-                    lnk.on_finish_link(mousepos.x, mousepos.y);
+                    lnk.on_finish_link(worldmouse.x, worldmouse.y);
                     set_change_flag();
                     break;
                 case TOOLBAR_NONE:
@@ -246,6 +247,7 @@ setup_canvas() {
     {
         const canvas = document.getElementById(COMPOSER_CANVAS);
         var mousepos = this.get_mouse_pos(canvas, e);
+        var worldmouse = this.screen2world(mousepos.x, mousepos.y);
 
         // Reset the flag everytime we move.
         this.location_guide_flag = false;
@@ -283,7 +285,7 @@ setup_canvas() {
                     move_select_box(mousepos.x, mousepos.y);
                 break;
             case TOOLBAR_LINK:
-                lnk.on_move_link(mousepos.x, mousepos.y);
+                lnk.on_move_link(worldmouse.x, worldmouse.y);
                 break;
             case TOOLBAR_NONE:
                 // Do nothing.
