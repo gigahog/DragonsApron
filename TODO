@@ -16,12 +16,13 @@ Adventurer Composer
 --------------------
 - AC: Fix links to use world coordinates.
 - AC: Integrate Google Bard
-- AC: Add 'Select All' toolbar button.
+
 
 
 COMPLETE
 =========
 
+- AC: Add 'Select All' toolbar button.
 - AC: Fix location boxes to use world cordinates.
 - AC: Add horizontal dragbar.
 - AC: Connect view to dragbar location.

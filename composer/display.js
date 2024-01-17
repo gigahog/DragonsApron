@@ -406,6 +406,8 @@ setup_toolbar() {
                          "./res/toolbar_add.png", TOOLBAR_ADD);
     this.toolbar.addtool("Select", "Select Location", on_select_location,
                          "./res/toolbar_select.png", TOOLBAR_SELECT);
+    this.toolbar.addtool("Select All", "Select All Locations", on_select_all,
+                         "./res/toolbar_selectall.png", TOOLBAR_SELECTALL);
     this.toolbar.addtool("Delete", "Delete Selection", on_delete,
                          "./res/toolbar_trash.png", TOOLBAR_DELETE);
     this.toolbar.addtool("Link", "Draw link between locations", on_link,

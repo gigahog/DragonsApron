@@ -127,6 +127,12 @@ function on_add_location(select) {
 function on_select_location(select) {
 }
 
+function on_select_all(select) {
+
+    for (var loc of locationArr)
+        loc.selected = true;
+}
+
 function on_delete(select) {
 
     var remove_ids = [];
