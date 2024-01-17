@@ -13,6 +13,7 @@ const MENUBAR_LOAD = 30;
 const MENUBAR_SAVE = 31;
 const MENUBAR_NEW = 32;
 const MENUBAR_DOWNLOAD = 33;
+const MENUBAR_GOOGLE_ID = 34;
 
 const BANNER_HEIGHT = 48;
 const BANNER_WIDTH = 165;
@@ -130,13 +131,28 @@ addmenu(name, desc, callback, icon, icon_dis, selectval) {
 }
 
 //=====================================================================
+// Set a new icon picture.
+//  name - Name of tool.
+//  icon - PNG of new icon.
+
+set_icon(name, icon) {
+    
+    // Walk the list of Tools.
+    for (var tool of this.tools) {
+    
+        if (name === tool.name)
+            tool.icon = icon;
+    }
+}
+
+//=====================================================================
 // Set the enabled state.
 //  name - Name of tool.
 //  state - Enabled State (true or false).
 
 set_enabled(name, state) {
 
-     // Walk the list of Tools.
+    // Walk the list of Tools.
     for (var tool of this.tools) {
     
         if (name === tool.name)
@@ -165,11 +181,11 @@ paint_toolbar(canvas) {
         else
             img.src = tool.icon_disable;
 
-        // Select part of the image to draw.
+        // Select part of the src image to draw.
         var sx = 0;
         var sy = 0;
-        var sWidth  = tool.rect.w;
-        var sHeight = tool.rect.h;
+        var sWidth  = img.width;
+        var sHeight = img.height;
 
         // Where to draw on canvas.
         var dx = tool.rect.x;

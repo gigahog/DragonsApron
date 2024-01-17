@@ -428,11 +428,14 @@ setup_toolbar() {
                          "./res/menu_save.png", "./res/menu_save_disable.png", MENUBAR_SAVE);
     this.toolbar.addmenu("Download", "Download XML Location File", on_download_xml_file,
                          "./res/menu_download.png", "./res/menu_download_disable.png", MENUBAR_DOWNLOAD);
+    this.toolbar.addmenu("ID", "Google ID", on_google_id,
+                         "", "./res/menu_id_disable.png", MENUBAR_GOOGLE_ID);
     
-    // Disable the Load, Save & Download Menu functions.
+    // Disable the Load, Save, Download & ID Menu functions.
     this.toolbar.set_enabled("Load", false);
     this.toolbar.set_enabled("Save", false);
     this.toolbar.set_enabled("Download", false);
+    this.toolbar.set_enabled("ID", false);
 }
 
 //=====================================================================

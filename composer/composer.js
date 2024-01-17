@@ -206,6 +206,9 @@ function on_download_xml_file() {
     gg_read_download(xml_file, "download");
 }
 
+function on_google_id() {
+}
+
 //=====================================================================
 // Timer Callback function.  Should be called every 5 seconds.
 
@@ -243,33 +246,8 @@ function on_timer() {
         console.log("Name: " + user.name);
         console.log("Pic : " + user.pic_url);
 
-        var sign = document.getElementById('gsoph');
-        var authimg = document.getElementById('authimg');
-        var authdiv = document.getElementById('authdiv');
-
-        var xstr = (parseInt(sign.offsetLeft) + parseInt(sign.offsetWidth)).toString() + "px";
-        var ystr = (parseInt(sign.offsetTop) + 1).toString() + "px";
-
-        // Set image attributes.
-        authimg.src = user.pic_url;
-        authimg.style.position = 'relative';
-        authimg.style.left = '0px';
-        authimg.style.top = '0px';
-        authimg.style.height = '46px';
-        authimg.style.width = '46px';
-
-        // Set DIV attributes.
-        authdiv.style.position = 'absolute';
-        authdiv.style.left = xstr;
-        authdiv.style.top = ystr;
-        authdiv.style.height = '46px';
-        authdiv.style.width = '46px';
-
-        // Show/hide the div element.
-        if (user.pic_url == EMPTY)
-            document.getElementById("authdiv").hidden = true;   // Hide.
-        else
-            document.getElementById("authdiv").hidden = false;  // Show.
+        if (user.pic_url != EMPTY)
+            dply.toolbar.set_icon("ID", user.pic_url);
     }
     
     //--------------------------------------------------------------
@@ -284,12 +262,14 @@ function on_timer() {
             dply.toolbar.set_enabled("Load", true);
             dply.toolbar.set_enabled("Save", true);
             dply.toolbar.set_enabled("Download", true);
+            dply.toolbar.set_enabled("ID", true);
             user.is_drive_ready = true;
         } else {
             // Disable the Load & Save Menu.
             dply.toolbar.set_enabled("Load", false);
             dply.toolbar.set_enabled("Save", false);
             dply.toolbar.set_enabled("Download", false);
+            dply.toolbar.set_enabled("ID", false);
             user.is_drive_ready = false;
         }
     }
