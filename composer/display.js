@@ -424,10 +424,13 @@ setup_toolbar() {
                          "./res/menu_load.png", "./res/menu_load_disable.png", MENUBAR_LOAD);
     this.toolbar.addmenu("Save", "Save XML Location File", on_save_xml_location,
                          "./res/menu_save.png", "./res/menu_save_disable.png", MENUBAR_SAVE);
+    this.toolbar.addmenu("Download", "Download XML Location File", on_download_xml_file,
+                         "./res/menu_download.png", "./res/menu_download_disable.png", MENUBAR_DOWNLOAD);
     
-    // Disable the Load & Save Menu.
+    // Disable the Load, Save & Download Menu functions.
     this.toolbar.set_enabled("Load", false);
     this.toolbar.set_enabled("Save", false);
+    this.toolbar.set_enabled("Download", false);
 }
 
 //=====================================================================

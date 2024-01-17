@@ -12,6 +12,7 @@ const BANNER_HOME = 20;
 const MENUBAR_LOAD = 30;
 const MENUBAR_SAVE = 31;
 const MENUBAR_NEW = 32;
+const MENUBAR_DOWNLOAD = 33;
 
 const BANNER_HEIGHT = 48;
 const BANNER_WIDTH = 165;

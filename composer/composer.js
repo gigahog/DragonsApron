@@ -195,6 +195,17 @@ function on_save_xml_location() {
     }
 }
 
+function on_download_xml_file() {
+    // Download the XML File (for the Adventure currently being displayed).
+    
+    var xml_file = new XmlFile();
+
+    xml_file.id = current_file_id;
+    xml_file.fname = current_file_name;
+        
+    gg_read_download(xml_file, "download");
+}
+
 //=====================================================================
 // Timer Callback function.  Should be called every 5 seconds.
 
@@ -272,11 +283,13 @@ function on_timer() {
             // Enable the Load & Save Menu.
             dply.toolbar.set_enabled("Load", true);
             dply.toolbar.set_enabled("Save", true);
+            dply.toolbar.set_enabled("Download", true);
             user.is_drive_ready = true;
         } else {
             // Disable the Load & Save Menu.
             dply.toolbar.set_enabled("Load", false);
             dply.toolbar.set_enabled("Save", false);
+            dply.toolbar.set_enabled("Download", false);
             user.is_drive_ready = false;
         }
     }

@@ -22,6 +22,7 @@ Adventurer Composer
 COMPLETE
 =========
 
+- AC: Implemented Google Download from Drive.
 - AC: Add 'Select All' toolbar button.
 - AC: Fix location boxes to use world cordinates.
 - AC: Add horizontal dragbar.
