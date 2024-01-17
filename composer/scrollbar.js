@@ -121,7 +121,6 @@ on_click_scrollbar(mx, my) {
 
     // IF click on Scroll area, then move the vertical dragbar up or down by set amount.
     if (is_point_in_rect(mx, my, this.scroll)) {
-        //console.log("on_click_scrollbar() " + this.get_type());
 
         if (this.type == VERTICAL_SLIDE) {
 
@@ -168,7 +167,6 @@ on_pagedown() {
 //=====================================================================
 
 on_click_dragbar(mx, my) {
-    //console.log("on_click_dragbar() " + this.get_type());
 
     // IF click on Dragbar area, then Calculate the grabdelta.
     if (is_point_in_rect(mx, my, this.drag)) {
@@ -202,10 +200,10 @@ get_percentage() {
     var percent = 0.0;
 
     if (this.type == VERTICAL_SLIDE)
-        percent = this.drag.y / (this.scroll.h - this.drag.h);
+        percent = (this.drag.y - this.scroll.y) / (this.scroll.h - this.drag.h);
     
     if (this.type == HORIZONTAL_SLIDE)
-        percent = this.drag.x / (this.scroll.w - this.drag.w);
+        percent = (this.drag.x - this.scroll.x) / (this.scroll.w - this.drag.w);
 
     if (percent > 1.0) percent = 1.0;
     if (percent < 0.0) percent = 0.0;

@@ -152,23 +152,23 @@ paint_toolbar(canvas) {
     ctx.fillStyle = COLOR_BLACK;
     ctx.fillRect(0, 0, canvas.width, this.menuH);
 
-    
+
     // Walk the list of Tools.
     for (var tool of this.tools) {
-    
+
         // Set the tools image.
         const img = new Image();
         if (tool.enabled)
             img.src = tool.icon;
         else
             img.src = tool.icon_disable;
-        
+
         // Select part of the image to draw.
         var sx = 0;
         var sy = 0;
         var sWidth  = tool.rect.w;
         var sHeight = tool.rect.h;
-        
+
         // Where to draw on canvas.
         var dx = tool.rect.x;
         var dy = tool.rect.y;
@@ -180,13 +180,13 @@ paint_toolbar(canvas) {
             ctx.fillStyle = COLOR_TB_DK_GREY;
         else
             ctx.fillStyle = COLOR_TB_LT_GREY;
-            
+
         ctx.fillRect(dx, dy, dWidth, dHeight);
-        
+
         // Draw outer edge.
         ctx.strokeStyle = COLOR_TB_DK_GREY;
         ctx.strokeRect(dx, dy, dWidth, dHeight);
-        
+
         // Draw icon.
         ctx.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     }

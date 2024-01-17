@@ -156,8 +156,9 @@ function on_link(select) {
 function on_banner(select) {
     // The Banner was clicked.  Open another browser tab with the URL of
     // the Home Page of 'Adventure Composer'.
-    window.open(ADV_COMPOSER_HOME_URL, "_blank");
-    gg_drive_about();
+
+    //window.open(ADV_COMPOSER_HOME_URL, "_blank");
+    //gg_drive_about();
 }
 
 function on_new_location() {
@@ -329,15 +330,15 @@ function update_location_next_id() {
 
 //=====================================================================
 // Add location with very minimal data.
-//  mx & my - Mouse click (Screen coordinates).
+//  mx & my - Mouse click (World coordinates).
 
 function add_location(mx, my) {
     var ds;
 
-    // Firstly, snap the mouse coords to grid.
+    // Firstly, snap the mouse coords to grid (Returns World coordinates).
     var grid = snap_to_grid(mx, my);
 
-    
+
     // Secondly, check if a new location box rectangle would intersect any
     // of the existing location boxes. 
     // If it intersects then do NOT allow.
@@ -348,13 +349,11 @@ function add_location(mx, my) {
             return;
     }
 
-
     // No collision detected, so continue with adding location.
     var loc = new Location();
-    var wld = dply.screen2world(grid.x, grid.y);
 
-    loc.rect.x = wld.x;
-    loc.rect.y = wld.y;
+    loc.rect.x = grid.x;
+    loc.rect.y = grid.y;
     loc.rect.w = LOCATION_BOX_W;
     loc.rect.h = LOCATION_BOX_H;
     loc.id = "ID" + location_next_id.toString().padStart(3, '0');
@@ -366,7 +365,7 @@ function add_location(mx, my) {
     set_west_square(loc, EMPTY, EMPTY);
 
     locationArr.push(loc);
-    console.log("Location " + loc.id + " added.");
+    console.log("Location " + loc.id + " added (" + grid.x + "," + grid.y + ")");
 
     // Increment for next location.
     location_next_id++;
@@ -505,24 +504,24 @@ function paint_locations(canvas) {
         else
             ctx.fillStyle = COLOR_LT_YELLOW;
         ctx.fillRect(scrn.x, scrn.y, dWidth, dHeight);
-        
+
         // Draw outer edge.
         ctx.strokeStyle = COLOR_BLACK;
         ctx.strokeRect(scrn.x, scrn.y, dWidth, dHeight);
-        
+
         // Setup Font.
         ctx.font = "10px Arial";
         ctx.fillStyle = COLOR_BLACK;
         ctx.textAlign = "start";
         ctx.textBaseline = "top";
-        
+
         // Text: ID
         xstart = (dWidth - get_font_width(ctx, loc.id)) / 2;
         ystart = scrn.y + yoffset;
         txth = get_font_height(ctx, loc.id);
         ctx.fillText(loc.id, scrn.x+xstart, ystart);
         yoffset += txth + LOCATION_TEXT_PAD;
-        
+
         // Text: Name.
         txt = loc.name;
         if (txt == EMPTY)
@@ -533,11 +532,10 @@ function paint_locations(canvas) {
         ctx.fillText(txt, scrn.x+xstart, ystart);
         yoffset += txth + LOCATION_TEXT_PAD;
 
-        
+
         // Render a square for each direction (N,S,E & W).
-        for (var ds of loc.squ) {
+        for (var ds of loc.squ)
             ctx.fillRect(scrn.x+ds.offset.x, scrn.y+ds.offset.y, ds.offset.w, ds.offset.h);
-        }
 
         txt = "N";
         xstart = (dWidth + DIR_BOX_SZ) / 2;

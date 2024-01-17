@@ -14,14 +14,17 @@ The Dragons Apron Story
 
 Adventurer Composer
 --------------------
-- AC: Add horizontal dragbar.
-- AC: Connect view to dragbar location.
+- AC: Fix links to use world coordinates.
 - AC: Integrate Google Bard
+- AC: Add 'Select All' toolbar button.
 
 
 COMPLETE
 =========
 
+- AC: Fix location boxes to use world cordinates.
+- AC: Add horizontal dragbar.
+- AC: Connect view to dragbar location.
 - AC: Grey out Load & Save icons till Google Authenticate complete.
 - AC: BUG: Fixed bug when a location is deleted but its connected locations have links to 0,0.
 - AC: Connected 'delete' key to delete function.

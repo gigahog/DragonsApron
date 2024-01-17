@@ -3,17 +3,11 @@
 //=====================================================================
 //=====================================================================
 // Snap coordinates mx,my to grid.
-// Returns: Vector2 of nearst grid coordinates (Screen coord).
+// Input:  x, y in world coordinates.
+// Returns: Vector2 of nearst grid coordinates (World coord).
 
-function snap_to_grid(mx, my) {
-    var tmp = new Vector(mx, my);
-    
-    // Get screen offset coordinates.
-    var offset = dply.get_screen_offset();
-    
-    // Find world coordinates.
-    tmp.x += offset.x;
-    tmp.y += offset.y;
+function snap_to_grid(wx, wy) {
+    var tmp = new Vector(wx, wy);
 
     // Find remainder.
     var remx = tmp.x % GRID_THROW_X;
@@ -29,11 +23,7 @@ function snap_to_grid(mx, my) {
         tmp.y += (GRID_THROW_Y - remy);  // Round Up Y
     else
         tmp.y -= remy;                    // Round Down Y
-    
-    // Convert back to screen coordinates.
-    tmp.x -= offset.x;
-    tmp.y -= offset.y;
-    
+
     return tmp;
 }
 

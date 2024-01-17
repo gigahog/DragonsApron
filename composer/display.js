@@ -138,6 +138,9 @@ setup_canvas() {
         const canvas = document.getElementById(COMPOSER_CANVAS);
         var mousepos = this.get_mouse_pos(canvas, e);
 
+        // Convert mousepos to world coordinates.
+        var worldmouse = this.screen2world(mousepos.x, mousepos.y);
+
         // Set mousedown flag.
         this.ismousedown = true;
 
@@ -174,7 +177,7 @@ setup_canvas() {
         // What we do depends on the toolbar selection.
         switch (this.toolbar.get_selected()) {
             case TOOLBAR_ADD:
-                add_location(mousepos.x, mousepos.y);
+                add_location(worldmouse.x, worldmouse.y);
                 set_change_flag();
                 break;
             case TOOLBAR_SELECT:
@@ -243,7 +246,7 @@ setup_canvas() {
     {
         const canvas = document.getElementById(COMPOSER_CANVAS);
         var mousepos = this.get_mouse_pos(canvas, e);
-        
+
         // Reset the flag everytime we move.
         this.location_guide_flag = false;
 
@@ -361,11 +364,11 @@ calc_offset() {
     var x_per = this.scrollH.get_percentage();
     var y_per = this.scrollV.get_percentage();
 
-    this.offset.x = this.world.x * x_per;
-    this.offset.y = this.world.y * y_per;
+    this.offset.x = (this.world.x - this.canvasW) * x_per;
+    this.offset.y = (this.world.y - this.canvasH) * y_per;
 
-    //console.log(" offset.x=" + this.offset.x + " (x_per=" + x_per + ")");
-    //console.log(" offset.y=" + this.offset.y + " (y_per=" + y_per + ")");
+    //console.log(" offset.x=" + this.offset.x + " (world.x=" + this.world.x + ")");
+    //console.log(" offset.y=" + this.offset.y + " (world.y=" + this.world.y + " Canvas.h=" + this.canvasH + ")");
 }
 
 //=====================================================================
