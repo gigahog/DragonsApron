@@ -679,6 +679,41 @@ function paint_select_box(canvas) {
 }
 
 //=====================================================================
+// Get the min/max rectangle around all the location boxes.
+// NOTE: This function should not be called if locationArr.length == 0.
+// Returns:
+//  rect - min/max rectangle.
+
+function get_min_max_rect() {
+    var xmin = Number.MAX_SAFE_INTEGER;
+    var xmax = 0;
+    var ymin = Number.MAX_SAFE_INTEGER;
+    var ymax = 0;
+
+    //----------------------------------------------------------------------
+    // Find the min/max rectangle.
+
+    for (var loc of locationArr) {
+
+        if (loc.rect.x < xmin) xmin = loc.rect.x;
+        if (loc.rect.x > xmax) xmax = loc.rect.x;
+        if (loc.rect.y < ymin) ymin = loc.rect.y;
+        if (loc.rect.y > ymax) ymax = loc.rect.y;
+    }
+    
+    var rect = new Rectangle(xmin, ymin, xmax-xmin, ymax-ymin);
+
+    return rect;
+}
+
+//=====================================================================
+// Return size of location Array.
+
+function get_location_array_len() {
+    return locationArr.length;
+}
+
+//=====================================================================
 // Functions to keep track of changes.
 
 function get_change_flag() {

@@ -39,6 +39,11 @@ const KEY_DELETE = TOOLBAR_DELETE + KEY_OFFSET;
 const SCROLL_WIDTH = 16;
 const DRAG_WIDTH = 12;
 
+const BUFFER_X = 200;
+const BUFFER_Y = 200;
+const WORLD_EXTEND_X = BUFFER_X*2;
+const WORLD_EXTEND_Y = BUFFER_Y*2;
+
 let KEY_CODE = {
     BACKSPACE: 8,
     TAB: 9,
@@ -111,6 +116,9 @@ class display {
         
         // Size of World canvas. 
         this.world = new Vector(0, 0);
+        
+        // Multiplying factor.
+        this.factor = new Vector(1.5, 1.5);
     }
 
 //=====================================================================
@@ -179,6 +187,8 @@ setup_canvas() {
             case TOOLBAR_ADD:
                 add_location(worldmouse.x, worldmouse.y);
                 set_change_flag();
+                if (this.should_world_expand())
+                    this.set_canvas_size();
                 break;
             case TOOLBAR_SELECT:
                 // Check if the mouse click was on location box.
@@ -369,8 +379,8 @@ calc_offset() {
     this.offset.x = (this.world.x - this.canvasW) * x_per;
     this.offset.y = (this.world.y - this.canvasH) * y_per;
 
-    //console.log(" offset.x=" + this.offset.x + " (world.x=" + this.world.x + ")");
-    //console.log(" offset.y=" + this.offset.y + " (world.y=" + this.world.y + " Canvas.h=" + this.canvasH + ")");
+    //console.log("CO: offset.x=" + this.offset.x + " (world.x=" + this.world.x + ")");
+    //console.log("CO: offset.y=" + this.offset.y + " (world.y=" + this.world.y + ")");
 }
 
 //=====================================================================
@@ -389,8 +399,10 @@ set_canvas_size() {
     this.canvasH = canvas.getBoundingClientRect().height;
 
     // Set the World size.
-    this.world.x = this.canvasW * 1.5;
-    this.world.y = this.canvasH * 1.5;
+    this.world.x = this.canvasW * this.factor.x;
+    this.world.y = this.canvasH * this.factor.y;
+    
+    //console.log("SCS: world.y=" + this.world.y + " (factor.y=" + this.factor.y + ")");
     
     // Re-Paint Canvas.
     this.paint(canvas);
@@ -712,35 +724,47 @@ on_key_press(canvas, key, code) {
 }
 
 //=====================================================================
-// Scroll up/down by a line size.
-//  canvas - Canvas.
-//  count  - Number of lies to scroll by.
-//  dir    - Direction (-1 is up, +1 is down).
-/*
-on_vert_scroll_by_line(canvas, count, dir) {
-    const ctx = canvas.getContext("2d");
-    var h = get_font_height(ctx, "A");
-    
-    h = h * count * dir;
-    
-    // Find total length in pixels.
-    var len = this.get_total_length();
+// Check if any location boxes are too close to edges of the world.
+// If so then increase the size of the world.
 
-    // Set the new position of the vertical drag bar.
-    var percent = this.vert_drag.y / (this.vert_scroll.h - this.vert_drag.h);
+should_world_expand() {
+    var ret = false
+
+    // First check size of locationArr (if it is zero then we have nothing to do).
+    if (get_location_array_len() == 0) 
+        return ret;
     
-    // Find the pixel position (using the dragbar position).
-    var pos = len * percent;
+    // Get the min/max rectangle around the location boxes.
+    var rect = get_min_max_rect();
     
-    // Modify the pixel position.
-    pos = pos + h;
+    var xmax = rect.x + rect.w;
+    var ymax = rect.y + rect.h;
     
-    // Find new percentage.
-    percent = pos / len;
+    if (xmax + BUFFER_X > this.world.x) {
+        // X World value should be increased.
+        this.factor.x = (this.world.x + WORLD_EXTEND_X) / this.canvasW;
+        console.log("Extend World X by increasing factor.x to " + this.factor.x);
+        ret = true;
+        
+        // Set Dragbar percentage so that we don't move.
+        var x_per = this.offset.x / (this.world.x + WORLD_EXTEND_X - this.canvasW);
+        this.scrollH.set_dragbar(x_per);
+    }
     
-    this.set_vert_dragbar(percent);
+    if (ymax + BUFFER_Y > this.world.y) {
+        // Y World value should be increased.
+        this.factor.y = (this.world.y + WORLD_EXTEND_Y) / this.canvasH;
+        console.log("Extend World Y by increasing factor.y to " + this.factor.y);
+        ret = true;
+        
+        // Set Dragbar percentage so that we don't move.
+        var y_per = this.offset.y / (this.world.y + WORLD_EXTEND_Y - this.canvasH);
+        this.scrollV.set_dragbar(y_per);
+    }
+    
+    return ret;
 }
-*/
+
 //=====================================================================
 // Get screen offset.
 // Return Type: Vector2

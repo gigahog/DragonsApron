@@ -101,7 +101,7 @@ paint_scrollbar(canvas) {
 //  percent - Value between 0 and 1.0.
 
 set_dragbar(percent) {
-    //console.log("set_dragbar() " + this.get_type());
+    //console.log("set_dragbar(" + percent + ")" );
     
     // Limit the percentage between 0.0 and 1.0.
     if (percent > 1.0)
@@ -110,9 +110,11 @@ set_dragbar(percent) {
         percent = 0.0;
 
     // Set the new position of the vertical drag bar.
-    this.drag.y = (this.scroll.h - this.drag.h) * percent;
-    
-    //console.log("percent=" + percent + " drag.y=" + this.drag.y);
+    if (this.type == VERTICAL_SLIDE)
+        this.drag.y = ((this.scroll.h - this.drag.h) * percent) + this.scroll.y;
+
+    if (this.type == HORIZONTAL_SLIDE)
+        this.drag.x = ((this.scroll.w - this.drag.w) * percent) + this.scroll.x;
 }
 
 //=====================================================================
@@ -207,6 +209,8 @@ get_percentage() {
 
     if (percent > 1.0) percent = 1.0;
     if (percent < 0.0) percent = 0.0;
+    
+    //console.log("get_percentage() return percent=" + percent);
 
     return percent;
 }
