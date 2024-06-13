@@ -229,6 +229,13 @@ get_scroll_height() {
     return this.scroll.h;
 }
 
+get_scroll_x() {
+    return this.scroll.x;
+}
+
+get_scroll_y() {
+    return this.scroll.y;
+}
 //=====================================================================
 // Set grabbar slide position.
 

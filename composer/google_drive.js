@@ -22,6 +22,7 @@ let signedin_flag = false;
 let credentials_new_flag = false;
 let credentials = new UserInfo();
 let driveinfo_new_flag = false;
+var gg_status = "";
 
 
 //==============================================================================
@@ -31,6 +32,15 @@ function UserInfo() {
     this.picture = "";
     this.email = "";
     this.is_drive_ready = false;
+}
+
+//=====================================================================
+// Return a status (only once).
+
+function gg_get_status() {
+    var tmp = gg_status;
+    gg_status = "";
+    return tmp;
 }
 
 //==============================================================================
@@ -126,8 +136,9 @@ function gg_handle_authenicate() {
 
     tokenClient.callback = async (resp) => {
         if (resp.error !== undefined) {
-            throw (resp);
+            gg_status = "Failed to Authenticate with Google";
             console.log("ERROR: Authentication failed !");
+            throw (resp);
             return;
         }
         // Show sign-out button.
@@ -169,6 +180,7 @@ function gg_handle_signout() {
         credentials.picture = "";
         driveinfo_new_flag = true;
         credentials.is_drive_ready = false;
+        gg_status = "Signed out from Google";
     }
 }
 
@@ -204,11 +216,11 @@ function gg_check_folder(folder) {
 function gg_gen_composer_fname() {
     const dn = new Date();
     var filename = "composer_" + dn.getFullYear() + "-" +
-                            padIt(dn.getUTCMonth(), 2, '0') + "-" +
-                            padIt(dn.getUTCDay(), 2, '0') + "-" +
-                            padIt(dn.getUTCHours(), 2, '0') +
-                            padIt(dn.getUTCMinutes(), 2, '0') +
-                            padIt(dn.getUTCSeconds(), 2, '0') + ".xml";
+                            padIt(dn.getMonth()+1, 2, '0') + "-" +
+                            padIt(dn.getDate(), 2, '0') + "-" +
+                            padIt(dn.getHours(), 2, '0') +
+                            padIt(dn.getMinutes(), 2, '0') +
+                            padIt(dn.getSeconds(), 2, '0') + ".xml";
     return filename;
 }
 
@@ -251,6 +263,7 @@ function gg_upload(txt) {
             console.log("current_file_id: " + current_file_id);
             
             doing_work = false;
+            gg_status = "Upload file to Google complete";
         });
     }
 }
@@ -260,11 +273,16 @@ function gg_upload(txt) {
 function gg_drive_about() {
     console.log("gg_drive_about()");
 
-    gapi.client.drive.about.get({ }).then(function(response) {
-        // Handle the results here (response.result has the parsed body).
-        console.log("Response", response);
-    },
-    function(err) { console.error("Execute error", err); });
+    var request = gapi.client.drive.about.get();
+    request.execute(function(resp) {
+        if (!resp) {
+            // Handle the results here (response.result has the parsed body).
+            console.log("Response", resp);
+        } else {
+            console.log("Error: ", resp.error.message);
+            gg_status = "Getting Google Drive info failed";
+        }
+    });
 }
 
 //==============================================================================
@@ -291,6 +309,7 @@ function gg_create_folder(folder) {
 
         driveinfo_new_flag = true;
         credentials.is_drive_ready = true;
+        gg_status = "Created new folder on Google Drive successfully";
     })
 }
 
@@ -346,6 +365,7 @@ function gg_read_download(xml_file, condition) {
             xml_file.txt = res.body;
             console.log("Read File: " + xml_file.fname);
             console.log("Loaded: " + xml_file.txt );
+            gg_status = "Read Google Drive file successfully";
             
             // Set current file details.
             current_file_id = xml_file.id;
@@ -360,6 +380,9 @@ function gg_read_download(xml_file, condition) {
             // Update the variable 'location_next_id'.
             update_location_next_id();
             
+            // Update the size of the world.
+            update_world_size();
+            
             // Redraw display.
             repaint();
 
@@ -369,12 +392,13 @@ function gg_read_download(xml_file, condition) {
             a.href = window.URL.createObjectURL(blob);
             a.download = xml_file.fname;
             a.click();
+            gg_status = "Downloaded Google Drive file successfully";
         }
     })
 }
 
 //==============================================================================
-// Create new/update function.
+// Create new/update file function.
 
 function gg_update_file(id, txt) {
     console.log('Updating File:' + id);
@@ -389,10 +413,13 @@ function gg_update_file(id, txt) {
         }),
         body: txt
     }).then(value => {
+        console.log(value);
         console.log('File updated successfully');
+        gg_status = "Updated Google Drive file successfully";
         doing_work = false;
     }).catch(err => {
         console.error(err);
+        gg_status = "Failed to update Google Drive file";
         doing_work = false;
     })
 }
@@ -407,6 +434,7 @@ function gg_delete_file(id) {
     });
     request.execute(function (res) {
         console.log('File Deleted');
+        gg_status = "Deleted Google Drive file successfully";
 
         // After delete update the list.
         showList();
@@ -426,6 +454,7 @@ function gg_check_currentuser() {
             credentials.name = resp.name;
             credentials.picture = resp.picture;
             credentials_new_flag = true;
+            gg_status = "Retrieved current Google Users info successfully";
         })
     });
 }

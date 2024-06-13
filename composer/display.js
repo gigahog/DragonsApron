@@ -8,6 +8,7 @@ const COLOR_BLUE  = "#0000FF";
 const COLOR_MAGENTA     = "#FF00FF";
 const COLOR_ORANGE      = "#FFA500";
 const COLOR_PINK        = "#FF9BED";
+const COLOR_LT_GREY     = "#D3D3D3";
 const COLOR_LT_RED      = "#FFAD9B";
 const COLOR_LT_GREEN    = "#9BFFAD";
 const COLOR_LT_BLUE     = "#9BEDFF";
@@ -43,6 +44,11 @@ const BUFFER_X = 200;
 const BUFFER_Y = 200;
 const WORLD_EXTEND_X = BUFFER_X*2;
 const WORLD_EXTEND_Y = BUFFER_Y*2;
+
+// Width & Height of Status line.
+const STATUS_OFFSET = 8;
+const STATUS_WIDTH = 300;
+const STATUS_DISPLAY_TIME = 5000;
 
 let KEY_CODE = {
     BACKSPACE: 8,
@@ -110,6 +116,8 @@ class display {
 
         this.scrollH = new scrollbar;
         this.scrollV = new scrollbar;
+
+        this.current_status = "";               // Text for status line.
         
         // Screen offset.
         this.offset = new Vector(0, 0);
@@ -120,6 +128,33 @@ class display {
         // Multiplying factor.
         this.factor = new Vector(1.5, 1.5);
     }
+
+//=====================================================================
+// Set the text for the Status Line.
+
+set_status_line(status_str) {
+    this.current_status = status_str;
+    console.log("SET:" + this.current_status)
+
+    // The status has changed so repaint canvas.
+    this.repaint();
+
+    var that = this;
+    // Start timer.
+    setTimeout( function() {
+        console.log("Status line timer ended.");
+        that.clear_status_line();
+        that.repaint();
+    }, STATUS_DISPLAY_TIME);
+}
+
+get_status_line() {
+    return this.current_status;
+}
+
+clear_status_line() {
+    this.current_status = "";
+}
 
 //=====================================================================
 
@@ -488,7 +523,8 @@ get_mouse_pos(canvas, e) {
 // Paint function (public member function).
 //  l - Reference the Link class.
 
-repaint(l) {
+//repaint(l) {
+repaint() {
     const canvas = document.getElementById(COMPOSER_CANVAS);
     this.paint(canvas);
 }
@@ -522,7 +558,7 @@ paint(canvas) {
     this.paint_scroll_square(canvas);
     
     this.toolbar.paint_toolbar(canvas);
-    
+    this.paint_status_line(canvas);
 
 
     // Find total document size in pixels.
@@ -587,6 +623,38 @@ set_dragbar_to_bottom() {
     
     if ( (this.currenty > pxl_start) && (this.currenty < (pxl_start + this.scrollV.get_scroll_height())) )
         this.set_dragbar(1.0);
+}
+
+//=====================================================================
+// Draw the Status line.
+
+paint_status_line(canvas) {
+    
+    // Only paint status line if current_status is not blank.
+    if (this.current_status != "") {
+        // Banner size taken from toolbar.js
+        var BANNER_HEIGHT = 48;
+        var BANNER_WIDTH = 165;
+        var x1 = BANNER_WIDTH + 2;
+        var y1 = BANNER_HEIGHT + 2;
+
+        const ctx = canvas.getContext("2d");
+
+        var text = "STATUS: " + this.current_status;
+        ctx.font = "12px sans serif";
+        ctx.textAlign = "start";
+        ctx.textBaseline = "top";
+        var h = get_font_height(ctx, text);
+        var w = get_font_width(ctx, text);
+
+        // Clear Statue line box.
+        ctx.fillStyle = COLOR_LT_GREY;
+        ctx.fillRect(x1, y1, w+20, h+STATUS_OFFSET);
+
+        // Draw Status Line text.
+        ctx.fillStyle = "black";
+        ctx.fillText(text, x1+(STATUS_OFFSET>>1), y1+(STATUS_OFFSET>>1));
+    }
 }
 
 //=====================================================================
@@ -742,23 +810,27 @@ should_world_expand() {
     
     if (xmax + BUFFER_X > this.world.x) {
         // X World value should be increased.
-        this.factor.x = (this.world.x + WORLD_EXTEND_X) / this.canvasW;
+        var xx = Math.max(xmax, this.world.x);
+
+        this.factor.x = (xx + WORLD_EXTEND_X) / this.canvasW;
         console.log("Extend World X by increasing factor.x to " + this.factor.x);
         ret = true;
         
         // Set Dragbar percentage so that we don't move.
-        var x_per = this.offset.x / (this.world.x + WORLD_EXTEND_X - this.canvasW);
+        var x_per = this.offset.x / (xx + WORLD_EXTEND_X - this.canvasW);
         this.scrollH.set_dragbar(x_per);
     }
     
     if (ymax + BUFFER_Y > this.world.y) {
         // Y World value should be increased.
-        this.factor.y = (this.world.y + WORLD_EXTEND_Y) / this.canvasH;
+        var yy = Math.max(ymax, this.world.y);
+        
+        this.factor.y = (yy + WORLD_EXTEND_Y) / this.canvasH;
         console.log("Extend World Y by increasing factor.y to " + this.factor.y);
         ret = true;
         
         // Set Dragbar percentage so that we don't move.
-        var y_per = this.offset.y / (this.world.y + WORLD_EXTEND_Y - this.canvasH);
+        var y_per = this.offset.y / (yy + WORLD_EXTEND_Y - this.canvasH);
         this.scrollV.set_dragbar(y_per);
     }
     

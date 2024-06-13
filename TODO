@@ -21,6 +21,7 @@ Adventurer Composer
 COMPLETE
 =========
 
+- AC: Added Status Line.
 - AC: Extend the size of the world when a location is put close to the edge.
 - AC: The Google ID picture has been made into a menu item (& removed the old <div> tag).
 - AC: BUG: The grid 'dots' seem to move in the wrong direction when scrolling.
@@ -57,3 +58,85 @@ COMPLETE
 
 - JS: Fix DisplayBox to correctly position the scroll/dragbar. 
 
+
+Commands:
+Basic Commands
+    quit
+    save
+    rest
+    stand
+    alias
+    roll
+    learn
+    forget
+    skills
+    title
+    follow
+    unfollow
+    group
+    ungroup
+Combat Commands
+    kill
+    flee
+    focus
+    ambush
+    assist
+    Information
+    look
+    stats
+    inventory
+    who
+    where
+    whois
+    factions
+    scan
+Movement
+    north
+    east
+    west
+    south
+    up
+    down
+    exits
+Communication
+    say
+    chat
+    gossip
+    emote
+    tell
+    reply
+    yell
+    mute
+Item Manipulation
+    get
+    put
+    drop
+    give
+    wield
+    wear
+    remove
+    label
+    upgrade
+    craft
+    compare
+Mob Commands
+    list
+    offer
+    buy
+    sell
+    enquire
+    complete
+    order
+Warrior Core Skills
+    bash
+    counter
+    ravage
+    stomp
+    punch
+Warrior Flex Skills
+    crash
+    cleave
+    rage
+    slam
+    brace
+    smash

@@ -77,7 +77,7 @@ function on_btn_ok() {
     
     const loc_lis = document.getElementById("loc_listen");
 
-    set_location_data(loc_id.value, loc_name.value, loc_desc.value,
+    set_location_data(loc_id.textContent, loc_name.value, loc_desc.value,
                       loc_obj1.value, loc_obj2.value, loc_obj3.value,
                       loc_opt1.value, loc_opt2.value, loc_opt3.value,
                       loc_lis.value);

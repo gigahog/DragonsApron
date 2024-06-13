@@ -13,8 +13,8 @@ var flist = [];                         // List of files that gets passed around
 // Selection Rectangle (World coords).
 var ss = new Rectangle(-1, -1, 0, 0);
 
-// Timer object.
-var timer;
+// Timer objects.
+var timer1, timer2;
 
 // Current Google File info.
 var current_file_id = -1;
@@ -39,7 +39,8 @@ const LOCATION_BOX_H = 60;              // Height of Location box (pixels)
 const LOCATION_TEXT_PAD = 2;
 const DIR_BOX_SZ = 8;                   // Size of direction square in pixels.
 const EMPTY = "";
-const TIMER_FREQ = 5000;                // Timer frequency in ms.
+const TIMER_FREQ_5SEC = 5000;           // Timer frequency in ms.
+const TIMER_FREQ_1SEC = 1000;           // Timer frequency in ms.
 
 window.addEventListener("load", start_composer);
 
@@ -101,8 +102,9 @@ function start_composer() {
     // Initialize Google Drive Authentication.
     gg_init();
 
-    // Start the main callback timer.
-    timer = setInterval(on_timer, TIMER_FREQ);
+    // Start the main callback timers.
+    timer1 = setInterval(on_timer_5sec, TIMER_FREQ_5SEC);
+    timer2 = setInterval(on_timer_1sec, TIMER_FREQ_1SEC);
 }
 
 //=====================================================================
@@ -164,7 +166,7 @@ function on_banner(select) {
     // the Home Page of 'Adventure Composer'.
 
     //window.open(ADV_COMPOSER_HOME_URL, "_blank");
-    //gg_drive_about();
+    gg_drive_about();
 }
 
 function on_new_location() {
@@ -183,7 +185,10 @@ function on_save_xml_location() {
 
     // Generate XML string.
     xmlstr = create_xml();
-    
+
+    // Set the Status line text.
+    dply.set_status_line("Saving project to Cloud...");
+
     // Save XML string to Google file.
     if (current_file_id == -1) {
         // Create new file.
@@ -215,9 +220,24 @@ function on_google_id() {
 }
 
 //=====================================================================
+// Timer Callback function.  Should be called every 1 seconds.
+
+function on_timer_1sec() {
+    var ggtxt = gg_get_status();
+
+    // Check if current Google Drive status is non-blank.
+    if (ggtxt != "") {
+    //    var status = dply.get_status_line();
+    //    if (status != ggtxt) {
+        dply.set_status_line(ggtxt);
+    }
+
+}
+
+//=====================================================================
 // Timer Callback function.  Should be called every 5 seconds.
 
-function on_timer() {
+function on_timer_5sec() {
 
     // Set cursor.
     if (doing_work)
@@ -259,7 +279,7 @@ function on_timer() {
     // Check if Google Drive & folder are ready.
     
     if (gg_is_driveinfo_new()) {
-        
+
         var cred = gg_get_credentials();
         console.log(cred);
         if (cred.is_drive_ready) {
@@ -286,7 +306,8 @@ function on_timer() {
 function repaint() {
 
     // Call the display class repaint function.
-    dply.repaint(lnk);
+    //dply.repaint(lnk);
+    dply.repaint();
 }
 
 //=====================================================================
@@ -338,6 +359,9 @@ function update_location_next_id() {
 
 function add_location(mx, my) {
     var ds;
+    
+    // Unselect all locations.
+    unselect_all_locations();
 
     // Firstly, snap the mouse coords to grid (Returns World coordinates).
     var grid = snap_to_grid(mx, my);
@@ -367,6 +391,9 @@ function add_location(mx, my) {
     set_south_square(loc, EMPTY, EMPTY);
     set_east_square(loc, EMPTY, EMPTY);
     set_west_square(loc, EMPTY, EMPTY);
+    
+    // Make sure this new location will be selected.
+    loc.selected = true;
 
     locationArr.push(loc);
     console.log("Location " + loc.id + " added (" + grid.x + "," + grid.y + ")");
@@ -676,6 +703,15 @@ function paint_select_box(canvas) {
     
     // Disable the dotted line.
     ctx.setLineDash([1, 0]);
+}
+
+//=====================================================================
+// An XML file has just been loaded, update the size of the world.
+
+function update_world_size() {
+    
+    if (dply.should_world_expand())
+        dply.set_canvas_size();
 }
 
 //=====================================================================
